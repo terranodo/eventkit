@@ -1,0 +1,9 @@
+- hosts: production 
+  remote_user: user
+  vars:
+    app_name: eventkit 
+    github_user: eventkit
+    server_name: 0.0.0.0
+    deploy_user: user 
+  roles:
+     - { role: ortelius.geonode }
