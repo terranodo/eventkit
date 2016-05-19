@@ -28,6 +28,8 @@ from geonode.settings import *
 
 SITENAME = 'eventkit'
 
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
 # Defines the directory that contains the settings file as the LOCAL_ROOT
 # It is used for relative settings elsewhere.
 GEONODE_ROOT = os.path.abspath(os.path.abspath(geonode.__file__))
@@ -47,6 +49,13 @@ STATICFILES_DIRS.append(
     os.path.join(LOCAL_ROOT, "static"),
 )
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(LOCAL_ROOT, 'development.db'),
+    }
+}
+
 # Note that Django automatically includes the "templates" dir in all the
 # INSTALLED_APPS, se there is no need to add maps/templates or admin/templates
 TEMPLATE_DIRS = (
@@ -61,3 +70,11 @@ LOCALE_PATHS = (
     os.path.join(LOCAL_ROOT, 'locale'),
     ) + LOCALE_PATHS
 
+INSTALLED_APPS += ("osgeo_importer", "osm_extract", "celery", "kombu.transport.django","testapp")
+
+BROKER_URL = 'django://'
+#CELERY_ACCEPT_CONTENT = ['json']
+#CELERY_TASK_SERIALIZER = 'json'
+#CELERY_RESULT_SERIALIZER = 'json'
+#CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+CELERY_ALWAYS_EAGER = False 
