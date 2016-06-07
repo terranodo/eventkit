@@ -1,19 +1,22 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/trusty64"
-  config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
-  config.ssh.username = 'vagrant'
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.define :production do |production|
-  	production.vm.network :public_network, :bridge => 'eth0', :auto_config => false
-    config.vm.network "forwarded_port", guest: 80, host: 8000
-    production.vm.provider :virtualbox do |vb|
-        vb.customize [ "modifyvm", :id, "--name", "eventkit-prod","--memory", 4096 ]
-  	end
-    config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "playbook.yml"
-    end
+  config.vm.box = "geerlingguy/centos7"
+  config.vm.provision :shell, path: "scripts/bootstrap.sh"
+  config.vm.hostname = "eventkit.dev"
+
+  ## create a private network visible only to the host machine
+  config.vm.network :private_network, ip: "192.168.99.120"
+
+  # Example of share an additional folder to the guest VM.
+  config.vm.synced_folder "../Eventkit", "/var/lib/eventkit"
+  config.vm.synced_folder "../mapproxy/mapproxy", "/var/lib64/python2.7/site-packages/mapproxy"
+  
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "6144", "--cpus", "2"]
   end
-
+  
 end
