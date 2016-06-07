@@ -11,9 +11,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   ## create a private network visible only to the host machine
   config.vm.network :private_network, ip: "192.168.99.120"
 
-  # Example of share an additional folder to the guest VM.
-  config.vm.synced_folder "../Eventkit", "/var/lib/eventkit"
-  config.vm.synced_folder "../mapproxy/mapproxy", "/var/lib64/python2.7/site-packages/mapproxy"
+  ## Example of share an additional folder to the guest VM.
+  ## This is useful if wanting to do development on your localhost with an IDE/Editor of your choice
+  # config.vm.synced_folder "../Eventkit", "/var/lib/eventkit"
+  # config.vm.synced_folder "../mapproxy/mapproxy", "/usr/lib64/python2.7/site-packages/mapproxy"
   
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", "6144", "--cpus", "2"]
