@@ -117,6 +117,36 @@ sudo grep -q '   peer' /var/lib/pgsql/9.5/data/pg_hba.conf && sed -i "s/   peer/
 sudo grep -q '   ident' /var/lib/pgsql/9.5/data/pg_hba.conf && sed -i "s/   ident/   trust/g" /var/lib/pgsql/9.5/data/pg_hba.conf
 sudo grep -q '127.0.0.1' /var/lib/pgsql/9.5/data/pg_hba.conf && sed -i "s/127.0.0.1\/32     /192.168.99.120\/32/g" /var/lib/pgsql/9.5/data/pg_hba.conf
 sudo systemctl restart postgresql-9.5
+grep -q '127.0.0.1' /etc/hosts && sed -i "s/127.0.0.1/192.168.99.120/g" /etc/hosts
+service network restart
+
+sudo yum install python-imaging python-virtualenv python-psycopg2 libxml2-devel libxml2-python libxslt-devel libxslt-python -y 
+sudo adduser -m geonode
+git clone https://github.com/GeoNode/geonode.git
+sudo mv geonode /home/geonode
+cd /home/
+sudo chmod 755 geonode
+cd /home/geonode
+sudo pip install -e .
+cd /home/geonode/geonode
+sudo echo "ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '::1']" >> /home/geonode/geonode/local_settings.py
+sudo echo "PROXY_ALLOWED_HOSTS = ('127.0.0.1', 'localhost', '::1')" >> /home/geonode/geonode/local_settings.py
+sudo echo "POSTGIS_VERSION = (2, 2, 2)"
+sudo grep -q 'http://localhost:8000/' /home/geonode/geonode/local_settings.py && sed -i "s/http:\/\/localhost:8000/http:\/\/localhost/g" /home/geonode/geonode/local_settings.py
+sudo grep -q "'ENGINE': ''" /home/geonode/geonode/local_settings.py && sed -i "s/'ENGINE': ''/# 'ENGINE': ''/g" /home/geonode/geonode/local_settings.py
+sudo grep -q "#'ENGINE'" /home/geonode/geonode/local_settings.py && sed -i "s/#'ENGINE'/'ENGINE'/g" /home/geonode/geonode/local_settings.py
+sudo sed -i "0,/'NAME': 'geonode'/! s/'NAME': 'geonode'/'NAME': 'geonode_data'/g" /home/geonode/geonode/local_settings.py
+#sudo grep -q "'NAME': 'geonode'" /home/geonode/geonode/local_settings.py && sed -i "s/'NAME': 'geonode'/'NAME': 'geonode_data'/g" /home/geonode/geonode/local_settings.py
+sudo grep -q "'LOCATION' : 'http://localhost:8080/geoserver/'" /home/geonode/geonode/local_settings.py && sed -i "s/'LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /home/geonode/geonode/local_settings.py
+sudo grep -q "'PUBLIC_LOCATION' : 'http://localhost:8080/geoserver/'" /home/geonode/geonode/local_settings.py && sed -i "s/'PUBLIC_LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'PUBLIC_LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /home/geonode/geonode/local_settings.py
+cd /home/geonode
+sudo -u postgres createdb geonode
+sudo -u postgres psql -c "CREATE USER geonode WITH PASSWORD 'geonode';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE geonode to geonode"
+#sudo -u postgres psql -c "CREATE DATABASE geonode_data;"
+sudo -u geonode python /home/geonode/manage.py syncdb --noinput
 
 cd /var/lib/osm-extract
 sudo -u postgres make clean all NAME=guinea_bissau URL=http://download.geofabrik.de/africa/guinea-bissau-latest.osm.pbf
+cd guinea_bissau
+sudo mapproxy-util serve-develop ./mapproxy.yaml -b eventkit.dev:80
