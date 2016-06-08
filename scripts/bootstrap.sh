@@ -123,12 +123,13 @@ service network restart
 sudo yum install python-imaging python-virtualenv python-psycopg2 libxml2-devel libxml2-python libxslt-devel libxslt-python -y 
 sudo adduser -m geonode
 git clone https://github.com/GeoNode/geonode.git
-sudo mv geonode /home/geonode
+sudo mv geonode /home/
 cd /home/
 sudo chmod 755 geonode
 cd /home/geonode
 sudo pip install -e .
 cd /home/geonode/geonode
+cp local_settings.py.sample local_settings.py
 sudo echo "ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '::1']" >> /home/geonode/geonode/local_settings.py
 sudo echo "PROXY_ALLOWED_HOSTS = ('127.0.0.1', 'localhost', '::1')" >> /home/geonode/geonode/local_settings.py
 sudo echo "POSTGIS_VERSION = (2, 2, 2)"
