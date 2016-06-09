@@ -75,7 +75,6 @@ sudo pip install mapproxy
 sudo pip install gdal
 sudo chown postgres:postgres -R /var/lib/osmosis
 #git clone https://github.com/terranodo/osm-extract.git
-
 # using a fork so small changes can be made for use of demonstration
 git clone https://github.com/lukerees/osm-extract.git
 sudo mv osm-extract /var/lib/osm-extract
@@ -85,7 +84,6 @@ sudo git clone https://github.com/mapnik/mapnik.git
 cd mapnik
 sudo git checkout v3.0.10
 sudo git submodule update --init
-#sudo ./configure
 sudo python scons/scons.py configure PG_CONFIG=/usr/pgsql-9.5/bin/pg_config
 sudo make
 sudo make install 
@@ -93,7 +91,6 @@ cd ..
 
 sudo git clone https://github.com/mapnik/python-mapnik
 cd python-mapnik
-#sudo echo "/usr/local/lib" >> /etc/ld.so.conf.d/eventkit.conf #THIS LINE FAILS
 sudo su -c "echo '/usr/local/lib' >> /etc/ld.so.conf.d/eventkit.conf"
 sudo ldconfig
 export PATH=$PATH:/usr/local/bin
@@ -123,31 +120,32 @@ service network restart
 sudo yum install python-imaging python-virtualenv python-psycopg2 libxml2-devel libxml2-python libxslt-devel libxslt-python -y 
 sudo adduser -m geonode
 git clone https://github.com/GeoNode/geonode.git
-sudo mv geonode /home/
-cd /home/
-sudo chmod 755 geonode
-cd /home/geonode
-sudo pip install -e .
+sudo mv geonode /home/geonode
+cd /home
+sudo chown -R geonode:geonode geonode
+sudo chmod -R 755 geonode
 cd /home/geonode/geonode
+sudo pip install -e .
+cd /home/geonode/geonode/geonode
 cp local_settings.py.sample local_settings.py
-sudo echo "ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '::1']" >> /home/geonode/geonode/local_settings.py
-sudo echo "PROXY_ALLOWED_HOSTS = ('127.0.0.1', 'localhost', '::1')" >> /home/geonode/geonode/local_settings.py
+sudo echo "ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '::1']" >> /home/geonode/geonode/geonode/local_settings.py
+sudo echo "PROXY_ALLOWED_HOSTS = ('127.0.0.1', 'localhost', '::1')" >> /home/geonode/geonode/geonode/local_settings.py
 sudo echo "POSTGIS_VERSION = (2, 2, 2)"
-sudo grep -q 'http://localhost:8000/' /home/geonode/geonode/local_settings.py && sed -i "s/http:\/\/localhost:8000/http:\/\/localhost/g" /home/geonode/geonode/local_settings.py
-sudo grep -q "'ENGINE': ''" /home/geonode/geonode/local_settings.py && sed -i "s/'ENGINE': ''/# 'ENGINE': ''/g" /home/geonode/geonode/local_settings.py
-sudo grep -q "#'ENGINE'" /home/geonode/geonode/local_settings.py && sed -i "s/#'ENGINE'/'ENGINE'/g" /home/geonode/geonode/local_settings.py
-sudo sed -i "0,/'NAME': 'geonode'/! s/'NAME': 'geonode'/'NAME': 'geonode_data'/g" /home/geonode/geonode/local_settings.py
-#sudo grep -q "'NAME': 'geonode'" /home/geonode/geonode/local_settings.py && sed -i "s/'NAME': 'geonode'/'NAME': 'geonode_data'/g" /home/geonode/geonode/local_settings.py
-sudo grep -q "'LOCATION' : 'http://localhost:8080/geoserver/'" /home/geonode/geonode/local_settings.py && sed -i "s/'LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /home/geonode/geonode/local_settings.py
-sudo grep -q "'PUBLIC_LOCATION' : 'http://localhost:8080/geoserver/'" /home/geonode/geonode/local_settings.py && sed -i "s/'PUBLIC_LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'PUBLIC_LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /home/geonode/geonode/local_settings.py
-cd /home/geonode
+sudo grep -q 'http://localhost:8000/' /home/geonode/geonode/geonode/local_settings.py && sed -i "s/http:\/\/localhost:8000/http:\/\/localhost/g" /home/geonode/geonode/geonode/local_settings.py
+sudo grep -q "'ENGINE': ''" /home/geonode/geonode/geonode/local_settings.py && sed -i "s/'ENGINE': ''/# 'ENGINE': ''/g" /home/geonode/geonode/geonode/local_settings.py
+sudo grep -q "#'ENGINE'" /home/geonode/geonode/geonode/local_settings.py && sed -i "s/#'ENGINE'/'ENGINE'/g" /home/geonode/geonode/geonode/local_settings.py
+sudo sed -i "0,/'NAME': 'geonode'/! s/'NAME': 'geonode'/'NAME': 'geonode_data'/g" /home/geonode/geonode/geonode/local_settings.py
+#sudo grep -q "'NAME': 'geonode'" /home/geonode/geonode/geonode/local_settings.py && sed -i "s/'NAME': 'geonode'/'NAME': 'geonode_data'/g" /home/geonode/geonode/geonode/local_settings.py
+sudo grep -q "'LOCATION' : 'http://localhost:8080/geoserver/'" /home/geonode/geonode/geonode/local_settings.py && sed -i "s/'LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /home/geonode/geonode/geonode/local_settings.py
+sudo grep -q "'PUBLIC_LOCATION' : 'http://localhost:8080/geoserver/'" /home/geonode/geonode/geonode/local_settings.py && sed -i "s/'PUBLIC_LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'PUBLIC_LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /home/geonode/geonode/geonode/local_settings.py
+cd /home/geonode/geonode
 sudo -u postgres createdb geonode
 sudo -u postgres psql -c "CREATE USER geonode WITH PASSWORD 'geonode';"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE geonode to geonode"
 #sudo -u postgres psql -c "CREATE DATABASE geonode_data;"
-sudo -u geonode python /home/geonode/manage.py syncdb --noinput
+sudo -u geonode python /home/geonode/geonode/manage.py syncdb --noinput
 
-cd /var/lib/osm-extract
-sudo -u postgres make clean all NAME=guinea_bissau URL=http://download.geofabrik.de/africa/guinea-bissau-latest.osm.pbf
-cd guinea_bissau
-sudo mapproxy-util serve-develop ./mapproxy.yaml -b eventkit.dev:80
+#cd /var/lib/osm-extract
+#sudo -u postgres make clean all NAME=guinea_bissau URL=http://download.geofabrik.de/africa/guinea-bissau-latest.osm.pbf
+#cd guinea_bissau
+#sudo mapproxy-util serve-develop ./mapproxy.yaml -b eventkit.dev:80
