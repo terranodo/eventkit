@@ -110,9 +110,9 @@ go generate github.com/omniscale/go-mapnik
 go install github.com/omniscale/go-mapnik
 cd -
 
-sudo grep -q '   peer' /var/lib/pgsql/9.5/data/pg_hba.conf && sed -i "s/   peer/   trust/g" /var/lib/pgsql/9.5/data/pg_hba.conf
-sudo grep -q '   ident' /var/lib/pgsql/9.5/data/pg_hba.conf && sed -i "s/   ident/   trust/g" /var/lib/pgsql/9.5/data/pg_hba.conf
-sudo grep -q '127.0.0.1' /var/lib/pgsql/9.5/data/pg_hba.conf && sed -i "s/127.0.0.1\/32     /192.168.99.120\/32/g" /var/lib/pgsql/9.5/data/pg_hba.conf
+sudo grep -q '   peer' /var/lib/pgsql/9.5/data/pg_hba.conf && sudo sed -i "s/   peer/   trust/g" /var/lib/pgsql/9.5/data/pg_hba.conf
+sudo grep -q '   ident' /var/lib/pgsql/9.5/data/pg_hba.conf && sudo sed -i "s/   ident/   trust/g" /var/lib/pgsql/9.5/data/pg_hba.conf
+sudo grep -q '127.0.0.1' /var/lib/pgsql/9.5/data/pg_hba.conf && sudo sed -i "s/127.0.0.1\/32     /192.168.99.120\/32/g" /var/lib/pgsql/9.5/data/pg_hba.conf
 sudo systemctl restart postgresql-9.5
 grep -q '127.0.0.1' /etc/hosts && sed -i "s/127.0.0.1/192.168.99.120/g" /etc/hosts
 sudo service network restart
@@ -164,7 +164,6 @@ sudo -u geonode python /home/geonode/geonode/manage.py migrate account
 # sudo -u geonode python /home/geonode/geonode/manage.py makemigrations
 # sudo -u geonode python /home/geonode/geonode/manage.py migrate
 sudo -u geonode python /home/geonode/geonode/manage.py syncdb --noinput
-sudo -u geonode python /home/geonode/geonode/manage.py createsuperuser --username admin --email admin@geonode.com --noinput
 sudo -u geonode python /home/geonode/geonode/manage.py collectstatic --noinput
 sudo mkdir /home/geonode/geonode/geonode/uploaded/
 sudo chmod +X /home/geonode/
@@ -263,6 +262,10 @@ sudo chmod -Rf 777 /home/geonode/geonode/geonode/uploaded/thumbs
 sudo chmod -Rf 777 /home/geonode/geonode/geonode/uploaded/layers
 sudo chown apache:apache /home/geonode/geonode/geonode/static_root/
 
+sudo systemctl start httpd
+sudo systemctl enable httpd
+
+sudo -u geonode python /home/geonode/geonode/manage.py createsuperuser --username admin --email admin@geonode.com
 
 #cd /var/lib/osm-extract
 #sudo -u postgres make clean all NAME=guinea_bissau URL=http://download.geofabrik.de/africa/guinea-bissau-latest.osm.pbf
