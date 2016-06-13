@@ -15,7 +15,6 @@ sudo /usr/pgsql-9.5/bin/postgresql95-setup initdb
 sudo service postgresql-9.5 start
 sudo systemctl enable postgresql-9.5
 
-
 wget http://bretth.dev.openstreetmap.org/osmosis-build/osmosis-latest.tgz
 mkdir osmosis
 mv osmosis-latest.tgz osmosis
@@ -98,6 +97,9 @@ sudo echo "PATH=$PATH:/usr/local/bin" >> /etc/profile.d/path.sh
 sudo env "PATH=$PATH" python setup.py install
 cd ..
 
+sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialindex -y
+sudo pip install rtree
+sudo pip install imposm
 
 sudo yum install golang -y
 export GOROOT=/usr/lib/golang
