@@ -8,7 +8,7 @@ sudo yum install gdal-devel postgis-postgresql95 -y
 sudo yum install postgresql95-contrib -y
 sudo yum install libpqxx-devel -y
 export PATH=$PATH:/usr/pgsql-9.5/bin
-sudo echo "PATH=$PATH:/usr/pgsql-9.5/bin" >> /etc/profile.d/path.sh #HAVE TO BE SUDO SU
+sudo echo "PATH=$PATH:/usr/pgsql-9.5/bin" >> /etc/profile.d/path.sh
 export PG_CONFIG=/usr/pgsql-9.5/bin/pg_config
 sudo echo "PG_CONFIG=/usr/pgsql-9.5/bin/pg_config" >> /etc/profile.d/path.sh
 sudo /usr/pgsql-9.5/bin/postgresql95-setup initdb
@@ -35,6 +35,7 @@ sudo yum install git -y
 sudo yum install java -y
 sudo yum install boost-devel harfbuzz-devel libicu-devel freetype-devel sqlite-devel python-devel libjpeg-devel libpng-devel -y
 sudo yum install gcc gcc-c++ -y
+sudo yum install mlocate -y
 # sudo yum install proj -y
 wget http://download.osgeo.org/proj/proj-4.9.2.tar.gz
 tar -zxvf proj-4.9.2.tar.gz
@@ -42,6 +43,14 @@ cd proj-4.9.2
 ./configure
 sudo make install
 cd ..
+
+# sudo git clone https://github.com/terranodo/eventkit.git
+# sudo mv eventkit/eventkit /var/lib/eventkit/eventkit
+# # sudo chown geonode:geonode -R /home/geonode/eventkit
+# # sudo chmod 755 -R /home/geonode/eventkit
+# pip install git+https://github.com/ProminentEdge/django-osgeo-importer.git
+# sudo ln -s /var/lib/eventkit/eventkit /usr/lib/python2.7/site-packages/
+
 
 #wget http://download.osgeo.org/gdal/2.1.0/gdal-2.1.0.tar.gz
 #tar -zxvf gdal-2.1.0.tar.gz
@@ -72,12 +81,16 @@ sudo pip install backports.ssl_match_hostname
 sudo pip install click
 sudo pip install mapproxy
 sudo pip install gdal
-sudo chown postgres:postgres -R /var/lib/osmosis
+sudo pip install supervisor
+sudo pip install uwsgi
+sudo chown vagrant:vagrant -R /var/lib/osmosis
 #git clone https://github.com/terranodo/osm-extract.git
 # using a fork so small changes can be made for use of demonstration
 git clone https://github.com/lukerees/osm-extract.git
 sudo mv osm-extract /var/lib/osm-extract
-sudo chown -R postgres:postgres /var/lib/osm-extract
+sudo chown -R vagrant:vagrant /var/lib/osm-extract
+sudo -u postgres psql -d geonode_data -c 'CREATE ROLE vagrant WITH CREATEDB SUPERUSER LOGIN;'
+sudo -u postgres createdb -O vagrant vagrant
 
 sudo git clone https://github.com/mapnik/mapnik.git
 cd mapnik
@@ -88,6 +101,7 @@ sudo make
 sudo make install 
 cd ..
 
+
 sudo git clone https://github.com/mapnik/python-mapnik
 cd python-mapnik
 sudo su -c "echo '/usr/local/lib' >> /etc/ld.so.conf.d/eventkit.conf"
@@ -97,9 +111,28 @@ sudo echo "PATH=$PATH:/usr/local/bin" >> /etc/profile.d/path.sh
 sudo env "PATH=$PATH" python setup.py install
 cd ..
 
-sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialindex -y
+sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialindex bzip2-devel -y
+# cd /var/lib/
+# sudo wget http://fallabs.com/tokyocabinet/tokyocabinet-1.4.48.tar.gz
+# tar xzvf tokyocabinet-1.4.48.tar.gz
+# cd tokyocabinet-1.4.48
+# sudo ./configure
+# sudo make
+# sudo make install
+# cd ../../
+# export PATH=$PATH:/usr/local/include
+# sudo echo "PATH=$PATH:/usr/local/include" >> /etc/profile.d/path.sh
+# sudo chmod 755 -R include/
 sudo pip install rtree
 sudo pip install imposm
+# set -xe
+# createuser --no-superuser --no-createrole --createdb osm
+# createdb -E UTF8 -O osm osm
+# echo "CREATE EXTENSION postgis;" | psql -d osm
+# echo "ALTER TABLE spatial_ref_sys OWNER TO osm;" | psql -d osm
+# echo "ALTER USER osm WITH PASSWORD 'osm';" |psql -d osm
+# echo "host	osm	osm	192.168.99.120/32	md5" >> /var/lib/pgsql/9.5/data/pg_hba.conf
+# set +x
 
 sudo yum install golang -y
 export GOROOT=/usr/lib/golang
@@ -154,7 +187,8 @@ sudo grep -q "'ENGINE': ''" /home/geonode/geonode/geonode/local_settings.py && s
 sudo grep -q "#'ENGINE'" /home/geonode/geonode/geonode/local_settings.py && sudo sed -i "s/#'ENGINE'/'ENGINE'/g" /home/geonode/geonode/geonode/local_settings.py
 sudo sed -i "0,/'NAME': 'geonode'/! s/'NAME': 'geonode'/'NAME': 'geonode_data'/g" /home/geonode/geonode/geonode/local_settings.py
 sudo grep -q "'LOCATION' : 'http://localhost:8080/geoserver/'" /home/geonode/geonode/geonode/local_settings.py && sudo sed -i "s/'LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /home/geonode/geonode/geonode/local_settings.py
-sudo grep -q "'PUBLIC_LOCATION' : 'http://localhost:8080/geoserver/'" /home/geonode/geonode/geonode/local_settings.py && sudo sed -i "s/'PUBLIC_LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'PUBLIC_LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /home/geonode/geonode/geonode/local_settings.py
+sudo grep -q "'PUBLIC_LOCATION' : 'http://localhost:8080/geoserver/'" /home/geonode/geonode/geonode/local_settings.py && sudo sed -i "s/'PUBLIC_LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'PUBLIC_LOCATION' : 'http:\/\/192.168.99.120\/geoserver\/'/g" /home/geonode/geonode/geonode/local_settings.py
+sudo grep -q 'SITEURL = "http://localhost/"' /home/geonode/geonode/geonode/local_settings.py && sudo sed -i 's/SITEURL = "http:\/\/localhost\/"/SITEURL = "http:\/\/192.168.99.120\/"/g' /home/geonode/geonode/geonode/local_settings.py
 sudo chown geonode:geonode local_settings.py
 sudo chmod 755 local_settings.py
 cd /home/geonode/geonode
@@ -194,6 +228,7 @@ sudo systemctl enable tomcat@geoserver
 # APACHE SETUP
 sudo systemctl enable firewalld
 sudo systemctl start firewalld
+sudo firewall-cmd --zone=public --add-port=6080/tcp --permanent
 sudo firewall-cmd --zone=public --add-service=http --permanent
 sudo firewall-cmd --reload
 sudo setsebool -P httpd_can_network_connect_db 1
@@ -267,7 +302,41 @@ sudo chown apache:apache /home/geonode/geonode/geonode/static_root/
 sudo systemctl start httpd
 sudo systemctl enable httpd
 
-sudo -u geonode python /home/geonode/geonode/manage.py createsuperuser --username admin --email admin@geonode.com
+sudo echo '[
+    {
+        "pk": 1,
+        "model": "people.profile",
+        "fields": {
+            "profile": null,
+            "last_name": "",
+            "is_staff": true,
+            "user_permissions": [],
+            "date_joined": "2016-06-15T14:25:19.000",
+            "city": null,
+            "first_name": "",
+            "area": null,
+            "zipcode": null,
+            "is_superuser": true,
+            "last_login": "2016-06-15T14:25:19.000",
+            "email": "admin@geonode.org",
+            "username": "admin",
+            "fax": null,
+            "is_active": true,
+            "delivery": null,
+            "groups": [
+                1
+            ],
+            "organization": null,
+            "password": "pbkdf2_sha256$20000$qH1pQEscvOgy$ypOQA/Ogej//J0218c39CFXobmv14050/hwWHnvhgxg=",
+            "country": null,
+            "position": null,
+            "voice": null
+        }
+    }
+]' >> /home/geonode/geonode/fixtures.json
+sudo -u geonode python /home/geonode/geonode/manage.py loaddata /home/geonode/geonode/fixtures.json
+
+#sudo -u geonode python /home/geonode/geonode/manage.py createsuperuser --username admin --email admin@geonode.com
 
 #cd /var/lib/osm-extract
 #sudo -u postgres make clean all NAME=guinea_bissau URL=http://download.geofabrik.de/africa/guinea-bissau-latest.osm.pbf
