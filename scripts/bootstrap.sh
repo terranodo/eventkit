@@ -36,7 +36,7 @@ sudo yum install java -y
 sudo yum install boost-devel harfbuzz-devel libicu-devel freetype-devel sqlite-devel python-devel libjpeg-devel libpng-devel -y
 sudo yum install gcc gcc-c++ -y
 sudo yum install mlocate -y
-# sudo yum install proj -y
+
 wget http://download.osgeo.org/proj/proj-4.9.2.tar.gz
 tar -zxvf proj-4.9.2.tar.gz
 cd proj-4.9.2
@@ -44,34 +44,6 @@ cd proj-4.9.2
 sudo make install
 cd ..
 
-
-
-
-
-
-#wget http://download.osgeo.org/gdal/2.1.0/gdal-2.1.0.tar.gz
-#tar -zxvf gdal-2.1.0.tar.gz
-#cd gdal-2.1.0
-#./configure 
-#cd gdal
-#./configure --enable-shared --with-python --prefix=/usr/
-#make
-#make install
-#sudo echo "LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH" >> /etc/profile.d/path.sh
-#sudo echo "GDAL_DATA=/usr/share/gdal" >> /etc/profile.d/path.sh
-#export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
-#export GDAL_DATA=/usr/share/gdal
-#cd -
-
-#cd swig/python
-#python setup.py build
-#mkdir -p /usr/lib/python2.7/site-packages (replace python2.7 by appropriate version in all below commands)
-#PYTHONPATH=/path/to/install/prefix/lib/python2.7/site-packages setup.py install --prefix=/path/to/install/prefix
-## Check that this works with :
-#PYTHONPATH=/path/to/install/prefix/lib/python2.7/site-packages:$PYTHONPATH python -c "from osgeo import gdal; print(gdal.__version__)"
-
-
-# sudo yum groupinstall "development tools" -y
 sudo yum install python-pip -y
 sudo pip install --upgrade pip
 sudo pip install backports.ssl_match_hostname
@@ -88,7 +60,7 @@ sudo chown vagrant:vagrant -R /var/lib/osmosis
 git clone https://github.com/lukerees/osm-extract.git
 sudo mv osm-extract /var/lib/osm-extract
 sudo chown -R vagrant:vagrant /var/lib/osm-extract
-sudo -u postgres psql -d geonode_data -c 'CREATE ROLE vagrant WITH CREATEDB SUPERUSER LOGIN;'
+sudo -u postgres psql -c 'CREATE ROLE vagrant WITH CREATEDB SUPERUSER LOGIN;'
 sudo -u postgres createdb -O vagrant vagrant
 
 sudo git clone https://github.com/mapnik/mapnik.git
@@ -111,27 +83,9 @@ sudo env "PATH=$PATH" python setup.py install
 cd ..
 
 sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialindex bzip2-devel -y
-# cd /var/lib/
-# sudo wget http://fallabs.com/tokyocabinet/tokyocabinet-1.4.48.tar.gz
-# tar xzvf tokyocabinet-1.4.48.tar.gz
-# cd tokyocabinet-1.4.48
-# sudo ./configure
-# sudo make
-# sudo make install
-# cd ../../
-# export PATH=$PATH:/usr/local/include
-# sudo echo "PATH=$PATH:/usr/local/include" >> /etc/profile.d/path.sh
-# sudo chmod 755 -R include/
 sudo pip install rtree
 sudo pip install imposm
-# set -xe
-# createuser --no-superuser --no-createrole --createdb osm
-# createdb -E UTF8 -O osm osm
-# echo "CREATE EXTENSION postgis;" | psql -d osm
-# echo "ALTER TABLE spatial_ref_sys OWNER TO osm;" | psql -d osm
-# echo "ALTER USER osm WITH PASSWORD 'osm';" |psql -d osm
-# echo "host	osm	osm	192.168.99.120/32	md5" >> /var/lib/pgsql/9.5/data/pg_hba.conf
-# set +x
+
 
 sudo yum install golang -y
 export GOROOT=/usr/lib/golang
@@ -198,10 +152,6 @@ chown vagrant:vagrant -R /var/lib/eventkit
 sudo chmod -R 755 /var/lib/eventkit/geonode
 sudo chmod 777 /usr/lib/python2.7/site-packages/account
 
-# sudo -u geonode python /var/lib/eventkit/manage.py makemigrations sites
-# sudo -u geonode python /var/lib/eventkit/manage.py migrate sites
-# sudo -u geonode python /var/lib/eventkit/manage.py makemigrations account
-# sudo -u geonode python /var/lib/eventkit/manage.py migrate account
 sudo python /var/lib/eventkit/manage.py makemigrations --noinput
 sudo python /var/lib/eventkit/manage.py migrate --noinput
 #sudo python /var/lib/eventkit/manage.py syncdb --noinput
@@ -398,9 +348,6 @@ sudo echo '[
 ]' > /var/lib/eventkit/geonode/fixtures.json
 sudo python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/geonode/fixtures.json
 
-
-
-#sudo -u geonode python /home/geonode/geonode/manage.py createsuperuser --username admin --email admin@geonode.com
 
 #cd /var/lib/osm-extract
 #sudo -u postgres make clean all NAME=guinea_bissau URL=http://download.geofabrik.de/africa/guinea-bissau-latest.osm.pbf
