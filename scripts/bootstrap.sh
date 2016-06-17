@@ -156,7 +156,7 @@ sudo python /var/lib/eventkit/manage.py makemigrations --noinput
 sudo python /var/lib/eventkit/manage.py migrate --noinput
 sudo python /var/lib/eventkit/manage.py collectstatic --noinput
 sudo mkdir /var/lib/eventkit/geonode/uploaded/
-
+sudo mkdir -p /var/lib/eventkit/mapproxy/apps
 
 sudo echo '[unix_http_server]
 file=/var/run/supervisor.sock
