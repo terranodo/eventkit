@@ -36,13 +36,13 @@ sudo yum install java -y
 sudo yum install boost-devel harfbuzz-devel libicu-devel freetype-devel sqlite-devel python-devel libjpeg-devel libpng-devel -y
 sudo yum install gcc gcc-c++ -y
 sudo yum install mlocate -y
-
 wget http://download.osgeo.org/proj/proj-4.9.2.tar.gz
 tar -zxvf proj-4.9.2.tar.gz
 cd proj-4.9.2
 ./configure
 sudo make install
 cd ..
+
 
 sudo yum install python-pip -y
 sudo pip install --upgrade pip
@@ -83,6 +83,7 @@ sudo env "PATH=$PATH" python setup.py install
 cd ..
 
 sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialindex bzip2-devel -y
+
 sudo pip install rtree
 sudo pip install imposm
 
@@ -119,8 +120,6 @@ sudo yum install python-imaging python-virtualenv python-psycopg2 libxml2-devel 
 sudo yum install httpd -y
 sudo yum install mod_ssl mod_proxy_html mod_wsgi -y
 sudo pip install decorator
-# sudo yum install java-1.7.0-openjdk-devel -y 
-# sudo yum install tomcat -y
 
 # GEONODE SETUP
 sudo yum install supervisor -y
@@ -152,109 +151,12 @@ chown vagrant:vagrant -R /var/lib/eventkit
 sudo chmod -R 755 /var/lib/eventkit/geonode
 sudo chmod 777 /usr/lib/python2.7/site-packages/account
 
+
 sudo python /var/lib/eventkit/manage.py makemigrations --noinput
 sudo python /var/lib/eventkit/manage.py migrate --noinput
-#sudo python /var/lib/eventkit/manage.py syncdb --noinput
 sudo python /var/lib/eventkit/manage.py collectstatic --noinput
 sudo mkdir /var/lib/eventkit/geonode/uploaded/
-# sudo chmod +X /var/lib/eventkit/
-# sudo chown -R geonode /var/lib/eventkit/
-# sudo chown apache:apache /var/lib/eventkit/geonode/static/
-# sudo chown apache:apache /var/lib/eventkit/geonode/uploaded/
-# sudo chown apache:apache /var/lib/eventkit/geonode/static_root/
-# # TOMCAT SETUP
-# sudo mkdir /var/lib/tomcats/base
-# sudo cp -a /usr/share/tomcat/* /var/lib/tomcats/base/
-# sudo mkdir /var/lib/tomcats/geoserver
-# sudo cp -a /usr/share/tomcat/* /var/lib/tomcats/geoserver/
-# sudo cp /usr/lib/systemd/system/tomcat.service /usr/lib/systemd/system/tomcat\@geoserver.service
-# sudo grep -q "EnvironmentFile=-/etc/sysconfig/tomcat" /usr/lib/systemd/system/tomcat\@geoserver.service && sudo sed -i "s/EnvironmentFile=-\/etc\/sysconfig\/tomcat/EnvironmentFile=-\/etc\/sysconfig\/tomcat@geoserver/g" /usr/lib/systemd/system/tomcat\@geoserver.service
-# sudo cp /etc/sysconfig/tomcat /etc/sysconfig/tomcat\@geoserver
-# sudo grep -q '#CATALINA_BASE' /etc/sysconfig/tomcat\@geoserver && sudo sed -i 's/#CATALINA_BASE/CATALINA_BASE/g' /etc/sysconfig/tomcat\@geoserver
-# sudo grep -q 'CATALINA_BASE="\/usr\/share\/tomcat"' /etc/sysconfig/tomcat\@geoserver && sudo sed -i 's/CATALINA_BASE="\/usr\/share\/tomcat"/CATALINA_BASE="\/var\/lib\/tomcats\/geoserver"/g' /etc/sysconfig/tomcat\@geoserver
-# cd /var/lib/tomcats/geoserver/webapps/
-# sudo wget http://build.geonode.org/geoserver/latest/geoserver.war
 
-# sudo chown -R tomcat:tomcat /var/lib/tomcats*
-# sudo systemctl start tomcat@geoserver
-# sudo systemctl enable tomcat@geoserver
-
-# APACHE SETUP
-# sudo systemctl enable firewalld
-# sudo systemctl start firewalld
-# sudo firewall-cmd --zone=public --add-port=6080/tcp --permanent
-# sudo firewall-cmd --zone=public --add-service=http --permanent
-# sudo firewall-cmd --reload
-# sudo setsebool -P httpd_can_network_connect_db 1
-# sudo su -c "echo '
-# WSGIDaemonProcess geonode python-path=/var/lib/eventkit/:/var/lib/eventkit/geonode/.venvs/geonode/lib/python2.7/site-packages user=apache threads=15 processes=2
-
-# <VirtualHost *:80>
-    # ServerName http://localhost
-    # ServerAdmin webmaster@localhost
-    # DocumentRoot /var/lib/eventkit/geonode
-
-    # ErrorLog /var/log/httpd/error.log
-    # LogLevel warn
-    # CustomLog /var/log/httpd/access.log combined
-
-    # WSGIProcessGroup geonode
-    # WSGIPassAuthorization On
-    # WSGIScriptAlias / /var/lib/eventkit/geonode/wsgi.py
-
-    # Alias /static/ /var/lib/eventkit/geonode/static_root/
-    # Alias /uploaded/ /var/lib/eventkit/geonode/uploaded/
-
-    # <Directory "/var/lib/eventkit/geonode/">
-         # <Files wsgi.py>
-             # Order deny,allow
-             # Allow from all
-             # Require all granted
-         # </Files>
-
-        # Order allow,deny
-        # Options Indexes FollowSymLinks
-        # Allow from all
-        # IndexOptions FancyIndexing
-    # </Directory>
-
-    # <Directory "/var/lib/eventkit/geonode/static_root/">
-        # Order allow,deny
-        # Options Indexes FollowSymLinks
-        # Allow from all
-        # Require all granted
-        # IndexOptions FancyIndexing
-    # </Directory>
-
-    # <Directory "/var/lib/eventkit/geonode/uploaded/thumbs/">
-        # Order allow,deny
-        # Options Indexes FollowSymLinks
-        # Allow from all
-        # Require all granted
-        # IndexOptions FancyIndexing
-    # </Directory>
-
-    # <Proxy *>
-        # Order allow,deny
-        # Allow from all
-    # </Proxy>
-
-    # ProxyPreserveHost On
-    # ProxyPass /geoserver http://192.168.99.120:8080/geoserver
-    # ProxyPassReverse /geoserver http://192.168.99.120:8080/geoserver
-
-# </VirtualHost>' >> /etc/httpd/conf.d/geonode.conf"
-# sudo mkdir -p /var/lib/eventkit/geonode/uploaded/thumbs
-# sudo mkdir -p /var/lib/eventkit/geonode/uploaded/layers
-# sudo chown -R geonode /var/lib/eventkit/geonode
-# sudo chown geonode:apache /var/lib/eventkit/geonode/static/
-# sudo chown geonode:apache /var/lib/eventkit/geonode/uploaded/
-# sudo chmod -Rf 777 /var/lib/eventkit/geonode/uploaded/thumbs
-# sudo chmod -Rf 777 /var/lib/eventkit/geonode/uploaded/layers
-# sudo chown apache:apache /var/lib/eventkit/geonode/static_root/
-
-# sudo systemctl start httpd
-# sudo systemctl enable httpd
 
 sudo echo '[unix_http_server]
 file=/var/run/supervisor.sock
@@ -271,16 +173,17 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 serverurl=unix:///var/run/supervisor.sock
 
 [group:eventkit]
-programs=gunicorn
+programs=gunicorn-geonode,gunicorn-mapproxy
 priority=999
 
-[program:gunicorn]
+[program:gunicorn-geonode]
 command =  /bin/gunicorn eventkit.wsgi:application
-           --bind eventkit.dev:80
+           --bind eventkit.dev:6080
            --worker-class eventlet
            --workers 2
-           --access-logfile /var/log/eventkit/gunicorn-access-log.txt
-           --error-logfile /var/log/eventkit/gunicorn-error-log.txt
+           --threads 4
+           --access-logfile /var/log/eventkit/geonode-access-log.txt
+           --error-logfile /var/log/eventkit/geonode-error-log.txt
            --name eventkit
            --user vagrant
 autostart=true
@@ -293,26 +196,81 @@ stderr_logfile_maxbytes=50MB
 stderr_logfile_backups=5
 stopsignal=INT
 
-# [program:celery-worker1]
-# command =   /bin/celery worker
-#            --app=eventkit.celery_app
-#            --uid vagrant
-#            --loglevel=info
-#            -B
-#            --workdir=/var/lib/eventkit
-# stdout_logfile=/var/log/eventkit/celery-w1-stdout.log
-# stderr_logfile=/var/log/eventkit/celery-w1-stderr.log
-# autostart=true
-# autorestart=true
-# startsecs=10
-# stopwaitsecs=600' > /etc/supervisord.conf
+[program:gunicorn-mapproxy]
+command =  /bin/gunicorn mapproxy.wsgi:application
+           --bind eventkit.dev:7080
+           --worker-class eventlet
+           --workers 4
+           --threads 8
+           --access-logfile /var/log/eventkit/mapproxy-access-log.txt
+           --error-logfile /var/log/eventkit/mapproxy-error-log.txt
+           --name eventkit
+           --user vagrant
+           --no-sendfile
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/eventkit/stdout.log
+stdout_logfile_maxbytes=50MB
+stdout_logfile_backups=5
+stderr_logfile=/var/log/eventkit/stderr.log
+stderr_logfile_maxbytes=50MB
+stderr_logfile_backups=5
+stopsignal=INT' > /etc/supervisord.conf
 
+sudo echo 'ServerLimit 16
+StartServers 2
+MinSpareServers 2
+MaxSpareServers 4
+<VirtualHost *:80>
+    ServerName eventkit.dev
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/lib/eventkit/geonode
+
+
+    ErrorLog /var/log/httpd/error.log
+    LogLevel warn
+    CustomLog /var/log/httpd/access.log combined
+
+    Alias /static/ /var/lib/eventkit/geonode/static_root/
+    Alias /uploaded/ /var/lib/eventkit/geonode/uploaded/
+
+    ProxyRequests Off
+    ProxyPreserveHost On
+    <Location /services>
+        ProxyPass http://192.168.99.120:7080
+        ProxyPassReverse  http://192.168.99.120:7080
+        RequestHeader unset X-Script-Name
+        RequestHeader add X-Script-Name "/services"
+    </Location>
+
+    ProxyPass / http://eventkit.dev:6080/
+    ProxyPassReverse / http://eventkit.dev:6080/
+
+</VirtualHost>' > /etc/httpd/conf.d/eventkit.conf
+
+echo "from mapproxy.multiapp import make_wsgi_app
+application = make_wsgi_app('/var/lib/eventkit/mapproxy/apps', allow_listing=True)" > /usr/lib64/python2.7/site-packages/mapproxy/wsgi.py
 
 sudo chown vagrant:vagrant -R /var/lib/eventkit/
 sudo chmod -R 755 /var/lib/eventkit/
 
+
+
+sudo systemctl start firewalld
+sudo systemctl enable firewalld
+
+sudo firewall-cmd --zone=public --add-port=6080/tcp --permanent
+sudo firewall-cmd --zone=public --add-port=7080/tcp --permanent
+sudo firewall-cmd --zone=public --add-port=80/tcp --permanent
+sudo firewall-cmd --reload
+sudo setsebool -P httpd_can_network_connect_db 1
+
+
 sudo service supervisord start
 sudo systemctl enable supervisord
+
+sudo systemctl start httpd
+sudo systemctl enable httpd
 
 sudo echo '[
     {
@@ -346,8 +304,9 @@ sudo echo '[
         }
     }
 ]' > /var/lib/eventkit/geonode/fixtures.json
-sudo python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/geonode/fixtures.json
 
+
+sudo python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/geonode/fixtures.json
 
 #cd /var/lib/osm-extract
 #sudo -u postgres make clean all NAME=guinea_bissau URL=http://download.geofabrik.de/africa/guinea-bissau-latest.osm.pbf
