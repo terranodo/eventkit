@@ -1,0 +1,5 @@
+.navbar-brand {
+    width: 140px;
+    height: 29px;
+    background: transparent url("/static/img/logo.png") no-repeat scroll 15px 0px;
+}
