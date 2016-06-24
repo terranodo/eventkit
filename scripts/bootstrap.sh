@@ -110,6 +110,7 @@ sudo wget http://data.openstreetmapdata.com/simplified-land-polygons-complete-38
 sudo unzip simplified-land-polygons-complete-3857
 sudo wget http://data.openstreetmapdata.com/land-polygons-split-3857.zip
 sudo unzip land-polygons-split-3857.zip
+sudo mkdir -p /var/lib/eventkit/mapproxy/apps
 cd /var/lib/eventkit/mapproxy
 sudo wget http://download.omniscale.de/magnacarto/rel/dev-20160406-012a66a/magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
 sudo tar -xzvf magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
