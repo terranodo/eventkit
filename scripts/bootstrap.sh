@@ -42,6 +42,7 @@ cd proj-4.9.2
 ./configure
 sudo make install
 cd ..
+sudo yum install proj-epsg -y
 
 
 sudo yum install python-pip -y
@@ -49,15 +50,21 @@ sudo pip install --upgrade pip
 sudo pip install backports.ssl_match_hostname
 sudo pip install click
 sudo pip install mapproxy
+cd /var/lib/
+sudo git clone https://github.com/terranodo/mapproxy.git
+cd mapproxy/
+sudo git checkout addGeopackageCache
+sudo rm -rf /usr/lib64/python2.7/site-packages/mapproxy
+sudo ln -s /var/lib/mapproxy/mapproxy /usr/lib64/python2.7/site-packages/
+
+
 sudo pip install gdal
 sudo pip install uwsgi
 sudo pip install numpy
 sudo pip install gunicorn
 sudo pip install eventlet
 sudo chown vagrant:vagrant -R /var/lib/osmosis
-#git clone https://github.com/terranodo/osm-extract.git
-# using a fork so small changes can be made for use of demonstration
-git clone https://github.com/lukerees/osm-extract.git
+git clone https://github.com/terranodo/osm-extract.git
 sudo mv osm-extract /var/lib/osm-extract
 sudo chown -R vagrant:vagrant /var/lib/osm-extract
 sudo -u postgres psql -c 'CREATE ROLE vagrant WITH CREATEDB SUPERUSER LOGIN;'
@@ -85,8 +92,28 @@ cd ..
 sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialindex bzip2-devel -y
 
 sudo pip install rtree
-sudo pip install imposm
+sudo env "PATH=$PATH" pip install imposm
 
+cd /var/lib/eventkit
+sudo git clone https://github.com/mapbox/osm-bright.git
+cd osm-bright
+sudo cp /var/lib/eventkit/osm-bright/osm-bright/fonts/* /usr/local/lib/mapnik/fonts/
+sudo cp /var/lib/eventkit/osm-bright/configure.py.sample /var/lib/eventkit/osm-bright/configure.py
+sudo yum install unzip -y
+sudo grep -q 'config\["importer"\] = "osm2pgsql"' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["importer"\] = "osm2pgsql"/config\["importer"\] = "imposm"/g' /var/lib/eventkit/osm-bright/configure.py
+sudo grep -q 'config\["postgis"\]\["user"\]     = ""' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["postgis"\]\["user"\]     = ""/config\["postgis"\]\["user"\]     = "postgres"/g' /var/lib/eventkit/osm-bright/configure.py
+sudo grep -q 'config\["postgis"\]\["password"\] = ""' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["postgis"\]\["password"\] = ""/config\["postgis"\]\["password"\] = "postgres"/g' /var/lib/eventkit/osm-bright/configure.py
+sudo grep -q  'path\.expanduser("\~\/Documents\/MapBox\/project")' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/path\.expanduser("\~\/Documents\/MapBox\/project")/path\.expanduser("\/var\/lib\/eventkit\/mapproxy")/g' /var/lib/eventkit/osm-bright/configure.py
+sudo mkdir /var/lib/eventkit/osm-bright/shp
+cd /var/lib/eventkit/osm-bright/shp
+sudo wget http://data.openstreetmapdata.com/simplified-land-polygons-complete-3857.zip
+sudo unzip simplified-land-polygons-complete-3857
+sudo wget http://data.openstreetmapdata.com/land-polygons-split-3857.zip
+sudo unzip land-polygons-split-3857.zip
+cd /var/lib/eventkit/mapproxy
+sudo wget http://download.omniscale.de/magnacarto/rel/dev-20160406-012a66a/magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
+sudo tar -xzvf magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
+sudo mv magnacarto-dev-20160406-012a66a-linux-amd64 magnacarto
 
 sudo yum install golang -y
 export GOROOT=/usr/lib/golang
@@ -157,6 +184,8 @@ sudo python /var/lib/eventkit/manage.py migrate --noinput
 sudo python /var/lib/eventkit/manage.py collectstatic --noinput
 sudo mkdir /var/lib/eventkit/geonode/uploaded/
 sudo mkdir -p /var/lib/eventkit/mapproxy/apps
+sudo mkdir /cache
+sudo chown vagrant:vagrant /cache
 
 sudo echo '[unix_http_server]
 file=/var/run/supervisor.sock
@@ -236,11 +265,11 @@ MaxSpareServers 4
 
     ProxyRequests Off
     ProxyPreserveHost On
-    <Location /services>
+    <Location /mapproxy>
         ProxyPass http://192.168.99.120:7080
         ProxyPassReverse  http://192.168.99.120:7080
         RequestHeader unset X-Script-Name
-        RequestHeader add X-Script-Name "/services"
+        RequestHeader add X-Script-Name "/mapproxy"
     </Location>
 
     ProxyPass / http://eventkit.dev:6080/
