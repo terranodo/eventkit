@@ -3,3 +3,4 @@
 .vagrant
 src
 pkg
+.DS_Store
