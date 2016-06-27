@@ -4,3 +4,4 @@
 src
 pkg
 .DS_Store
+eventkit.egg-info/
