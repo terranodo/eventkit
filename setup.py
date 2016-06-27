@@ -10,7 +10,7 @@ setup(
     author="",
     author_email="",
     description="eventkit, based on GeoNode",
-    long_description=(read('README.rst')),
+    long_description=(read('readme.md')),
     # Full list of classifiers can be found at:
     # http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -22,8 +22,4 @@ setup(
     packages=['eventkit',],
     include_package_data=True,
     zip_safe=False,
-    install_requires=[
-        'django-tastypie==0.11.0',
-        'geonode==2.4',
-    ]
 )
