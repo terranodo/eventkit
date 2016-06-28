@@ -7,7 +7,7 @@ def register_service(base_url=None,
                      service_url=None,
                      service_name=None,
                      service_type="AUTO",
-                     verify=True):
+                     verify=False):
 
     base_url = base_url.rstrip('/')
     client = requests.session()

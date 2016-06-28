@@ -111,7 +111,7 @@ cd /var/lib/eventkit/osm-bright/shp
 sudo wget http://data.openstreetmapdata.com/simplified-land-polygons-complete-3857.zip
 sudo unzip simplified-land-polygons-complete-3857
 sudo wget http://data.openstreetmapdata.com/land-polygons-split-3857.zip
-sudo unzip land-polygons-split-3857.zip
+sudo unzip land-polygons-split-3857
 sudo mkdir -p /var/lib/eventkit/mapproxy/apps
 cd /var/lib/eventkit/mapproxy
 sudo wget http://download.omniscale.de/magnacarto/rel/dev-20160406-012a66a/magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
@@ -186,7 +186,6 @@ sudo python /var/lib/eventkit/manage.py makemigrations --noinput
 sudo python /var/lib/eventkit/manage.py migrate --noinput
 sudo python /var/lib/eventkit/manage.py collectstatic --noinput
 sudo mkdir /var/lib/eventkit/geonode/uploaded/
-sudo mkdir -p /var/lib/eventkit/mapproxy/apps
 sudo mkdir /cache
 sudo chown vagrant:vagrant /cache
 
@@ -291,12 +290,12 @@ sudo chmod -R 755 /var/lib/eventkit/
 sudo systemctl start firewalld
 sudo systemctl enable firewalld
 
-sudo firewall-cmd --zone=public --add-port=6080/tcp --permanent
-sudo firewall-cmd --zone=public --add-port=7080/tcp --permanent
+sudo firewall-cmd --zone=internal --add-port=6080/tcp --permanent
+sudo firewall-cmd --zone=internal --add-port=7080/tcp --permanent
+sudo firewall-cmd --zone=public --add-port=5432/tcp --permanent
 sudo firewall-cmd --zone=public --add-port=80/tcp --permanent
 sudo firewall-cmd --reload
 sudo setsebool -P httpd_can_network_connect_db 1
-
 
 sudo service supervisord start
 sudo systemctl enable supervisord
@@ -340,7 +339,5 @@ sudo echo '[
 
 sudo python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/geonode/fixtures.json
 
-#cd /var/lib/osm-extract
-#sudo -u postgres make clean all NAME=guinea_bissau URL=http://download.geofabrik.de/africa/guinea-bissau-latest.osm.pbf
-#cd guinea_bissau
-#sudo mapproxy-util serve-develop ./mapproxy.yaml -b eventkit.dev:80
+python /var/lib/eventkit/scripts/osm_importer.py --name rio --url https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
+
