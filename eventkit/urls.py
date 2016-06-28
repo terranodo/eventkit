@@ -15,4 +15,5 @@ urlpatterns = patterns('',
             permanent=False),
         name="favicon"
     ),
+    (r'^djmp/', include('djmp.urls')),
 ) + urlpatterns
