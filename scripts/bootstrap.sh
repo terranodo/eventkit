@@ -57,6 +57,8 @@ sudo git checkout addGeopackageCache
 sudo rm -rf /usr/lib64/python2.7/site-packages/mapproxy
 sudo ln -s /var/lib/mapproxy/mapproxy /usr/lib64/python2.7/site-packages/
 
+sudo pip install -e git://github.com/terranodo/django-mapproxy.git@registry#egg=django-mapproxy
+
 
 sudo pip install gdal
 sudo pip install uwsgi
