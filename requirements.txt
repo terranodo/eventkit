@@ -1,3 +1,13 @@
+backports.ssl_match_hostname
+click
+mapproxy
+gdal
+uwsgi
+gunicorn
+eventlet
+rtree
+imposm
+decorator
 -e git://github.com/terranodo/mapproxy.git@master#egg=mapproxy
 -e git://github.com/terranodo/django-mapproxy.git@registry#egg=django-mapproxy
 -e git://github.com/terranodo/osm-extract.git@master#egg=osm-extract
