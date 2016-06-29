@@ -267,6 +267,7 @@ MaxSpareServers 4
 
     Alias /static/ /var/lib/eventkit/geonode/static_root/
     Alias /uploaded/ /var/lib/eventkit/geonode/uploaded/
+    SSLEngine on
     SSLProxyEngine on
     SSLCertificateFile /etc/pki/eventkit/cert.pem
     SSLCertificateKeyFile /etc/pki/eventkit/key.pem
