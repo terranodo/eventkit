@@ -117,7 +117,6 @@ cd /var/lib/eventkit/mapproxy
 sudo wget http://download.omniscale.de/magnacarto/rel/dev-20160406-012a66a/magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
 sudo tar -xzvf magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
 sudo mv magnacarto-dev-20160406-012a66a-linux-amd64 magnacarto
-
 sudo yum install golang -y
 export GOROOT=/usr/lib/golang
 sudo echo "GOROOT=/usr/lib/golang" >> /etc/profile.d/path.sh
@@ -175,7 +174,7 @@ sudo grep -q "#'ENGINE'" /var/lib/eventkit/geonode/local_settings.py && sudo sed
 sudo sed -i "0,/'NAME': 'geonode'/! s/'NAME': 'geonode'/'NAME': 'geonode_data'/g" /var/lib/eventkit/geonode/local_settings.py
 sudo grep -q "'LOCATION' : 'http://localhost:8080/geoserver/'" /var/lib/eventkit/geonode/local_settings.py && sudo sed -i "s/'LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /var/lib/eventkit/geonode/local_settings.py
 sudo grep -q "'PUBLIC_LOCATION' : 'http://localhost:8080/geoserver/'" /var/lib/eventkit/geonode/local_settings.py && sudo sed -i "s/'PUBLIC_LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'PUBLIC_LOCATION' : 'http:\/\/192.168.99.120\/geoserver\/'/g" /var/lib/eventkit/geonode/local_settings.py
-sudo grep -q 'SITEURL = "http://localhost/"' /var/lib/eventkit/geonode/local_settings.py && sudo sed -i 's/SITEURL = "http:\/\/localhost\/"/SITEURL = "http:\/\/192.168.99.120\/"/g' /var/lib/eventkit/geonode/local_settings.py
+sudo grep -q 'SITEURL = "https://localhost/"' /var/lib/eventkit/geonode/local_settings.py && sudo sed -i 's/SITEURL = "http:\/\/localhost\/"/SITEURL = "http:\/\/192.168.99.120\/"/g' /var/lib/eventkit/geonode/local_settings.py
 
 chown vagrant:vagrant -R /var/lib/eventkit
 sudo chmod -R 755 /var/lib/eventkit/geonode
@@ -209,7 +208,7 @@ priority=999
 
 [program:gunicorn-geonode]
 command =  /bin/gunicorn eventkit.wsgi:application
-           --bind eventkit.dev:6080
+           --bind eventkit.dev:6443
            --worker-class eventlet
            --workers 2
            --threads 4
@@ -217,6 +216,8 @@ command =  /bin/gunicorn eventkit.wsgi:application
            --error-logfile /var/log/eventkit/geonode-error-log.txt
            --name eventkit
            --user vagrant
+           --keyfile /etc/pki/eventkit/key.pem
+           --certfile /etc/pki/eventkit/cert.pem
 autostart=true
 autorestart=true
 stdout_logfile=/var/log/eventkit/stdout.log
@@ -229,7 +230,7 @@ stopsignal=INT
 
 [program:gunicorn-mapproxy]
 command =  /bin/gunicorn mapproxy.wsgi:application
-           --bind eventkit.dev:7080
+           --bind eventkit.dev:7443
            --worker-class eventlet
            --workers 4
            --threads 8
@@ -238,6 +239,8 @@ command =  /bin/gunicorn mapproxy.wsgi:application
            --name eventkit
            --user vagrant
            --no-sendfile
+           --keyfile /etc/pki/eventkit/key.pem
+           --certfile /etc/pki/eventkit/cert.pem
 autostart=true
 autorestart=true
 stdout_logfile=/var/log/eventkit/stdout.log
@@ -252,7 +255,7 @@ sudo echo 'ServerLimit 16
 StartServers 2
 MinSpareServers 2
 MaxSpareServers 4
-<VirtualHost *:80>
+<VirtualHost *:443>
     ServerName eventkit.dev
     ServerAdmin webmaster@localhost
     DocumentRoot /var/lib/eventkit/geonode
@@ -264,18 +267,20 @@ MaxSpareServers 4
 
     Alias /static/ /var/lib/eventkit/geonode/static_root/
     Alias /uploaded/ /var/lib/eventkit/geonode/uploaded/
-
+    SSLProxyEngine on
+    SSLCertificateFile /etc/pki/eventkit/cert.pem
+    SSLCertificateKeyFile /etc/pki/eventkit/key.pem
     ProxyRequests Off
     ProxyPreserveHost On
     <Location /mapproxy>
-        ProxyPass http://192.168.99.120:7080
-        ProxyPassReverse  http://192.168.99.120:7080
+        ProxyPass https://192.168.99.120:7443
+        ProxyPassReverse  https://192.168.99.120:7443
         RequestHeader unset X-Script-Name
         RequestHeader add X-Script-Name "/mapproxy"
     </Location>
 
-    ProxyPass / http://eventkit.dev:6080/
-    ProxyPassReverse / http://eventkit.dev:6080/
+    ProxyPass / https://eventkit.dev:6443/
+    ProxyPassReverse / https://eventkit.dev:6443/
 
 </VirtualHost>' > /etc/httpd/conf.d/eventkit.conf
 
@@ -285,15 +290,20 @@ application = make_wsgi_app('/var/lib/eventkit/mapproxy/apps', allow_listing=Tru
 sudo chown vagrant:vagrant -R /var/lib/eventkit/
 sudo chmod -R 755 /var/lib/eventkit/
 
-
+sudo mkdir /etc/pki/eventkit
+cd /etc/pki/eventkit
+sudo openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj '/CN=eventkit.dev'
+sudo cp /etc/pki/eventkit/cert.pem /etc/pki/ca-trust/source/anchors/
+sudo cp /etc/pki/eventkit/key.pem /etc/pki/ca-trust/source/anchors/
+sudo update-ca-trust extract
 
 sudo systemctl start firewalld
 sudo systemctl enable firewalld
 
-sudo firewall-cmd --zone=internal --add-port=6080/tcp --permanent
-sudo firewall-cmd --zone=internal --add-port=7080/tcp --permanent
+sudo firewall-cmd --zone=internal --add-port=6443/tcp --permanent
+sudo firewall-cmd --zone=internal --add-port=7443/tcp --permanent
 sudo firewall-cmd --zone=public --add-port=5432/tcp --permanent
-sudo firewall-cmd --zone=public --add-port=80/tcp --permanent
+sudo firewall-cmd --zone=public --add-port=443/tcp --permanent
 sudo firewall-cmd --reload
 sudo setsebool -P httpd_can_network_connect_db 1
 
@@ -339,5 +349,4 @@ sudo echo '[
 
 sudo python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/geonode/fixtures.json
 
-python /var/lib/eventkit/scripts/osm_importer.py --name rio --url https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
-
+# python /var/lib/eventkit/scripts/osm_importer.py --name rio --url https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
