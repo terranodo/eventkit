@@ -49,7 +49,7 @@ def import_osm_data(dataset_name, dataset_url,
     urllib.urlretrieve(dataset_url, input_file_path)
     print("Original OSM data has been saved to {}".format(input_file_path))
     print("Extracting OSM data to postgis")
-    subprocess.call(['sudo', 'imposm', '--connection',
+    subprocess.call(['sudo', '/var/lib/eventkit/bin/imposm', '--connection',
                      'postgis://{0}:{1}@localhost/{2}'.format(database_user, database_password, database_name),
                      '-m', '/var/lib/eventkit/osm-bright/imposm-mapping.py', '--read', '--write', '--optimize',
                      '--overwrite-cache', '--cache-dir', cache_directory,
@@ -79,8 +79,8 @@ def import_osm_data(dataset_name, dataset_url,
     tables = get_osm_bright_tables()
     generate_mapproxy_file(tables, database_name)
     from register_service import register_service
-    register_service(base_url='https://eventkit.dev/',
-                     service_url='https://eventkit.dev/mapproxy/{}/service'.format(database_name),
+    register_service(base_url='http://eventkit.dev/',
+                     service_url='http://eventkit.dev/mapproxy/{}/service'.format(database_name),
                      service_name=database_name)
 
 
