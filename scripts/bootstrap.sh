@@ -54,6 +54,7 @@ sudo yum install httpd -y
 sudo yum install mod_ssl mod_proxy_html mod_wsgi -y
 sudo yum install supervisor -y
 
+# sudo mkdir /var/lib/eventkit
 sudo git clone https://github.com/terranodo/eventkit.git
 sudo mv eventkit/* /var/lib/eventkit/
 
@@ -115,11 +116,17 @@ sudo echo "GOROOT=/usr/lib/golang" >> /etc/profile.d/path.sh
 export GOPATH=/var/lib/eventkit
 sudo echo "GOPATH=/var/lib/eventkit" >> /etc/profile.d/path.sh
 cd /var/lib/eventkit
-go get -d github.com/omniscale/go-mapnik
-go generate github.com/omniscale/go-mapnik
-go install github.com/omniscale/go-mapnik
-cd -
 
+env "GOPATH=$GOPATH" go get -d github.com/omniscale/go-mapnik
+env "GOPATH=$GOPATH" go generate github.com/omniscale/go-mapnik
+env "GOPATH=$GOPATH" go install github.com/omniscale/go-mapnik
+env "GOPATH=$GOPATH" go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+env "GOPATH=$GOPATH" go build github.com/golang/protobuf/proto
+env "GOPATH=$GOPATH" go install github.com/golang/protobuf/proto
+env "GOPATH=$GOPATH" go get -d github.com/terranodo/tegola
+env "GOPATH=$GOPATH" go build github.com/terranodo/tegola/cmd/tegola/main.go
+env "GOPATH=$GOPATH" go install github.com/terranodo/tegola/cmd/tegola/
+cd -
 sudo grep -q '   peer' /var/lib/pgsql/9.5/data/pg_hba.conf && sudo sed -i "s/   peer/   trust/g" /var/lib/pgsql/9.5/data/pg_hba.conf
 sudo grep -q '   ident' /var/lib/pgsql/9.5/data/pg_hba.conf && sudo sed -i "s/   ident/   trust/g" /var/lib/pgsql/9.5/data/pg_hba.conf
 sudo grep -q '127.0.0.1' /var/lib/pgsql/9.5/data/pg_hba.conf && sudo sed -i "s/127.0.0.1\/32     /192.168.99.120\/32/g" /var/lib/pgsql/9.5/data/pg_hba.conf
@@ -244,8 +251,28 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 serverurl=unix:///var/run/supervisor.sock
 
 [group:eventkit]
-programs=gunicorn-geonode,gunicorn-mapproxy
+programs=gunicorn-geonode,gunicorn-mapproxy,tegola
 priority=999
+
+[program:tegola]
+command = /var/lib/eventkit/bin/tegola
+           --bind eventkit.dev:8080
+           --worker-class eventlet
+           --workers 2
+           --threads 4
+           --access-logfile /var/log/eventkit/tegola-access-log.txt
+           --error-logfile /var/log/eventkit/tegola-error-log.txt
+           --name eventkit
+           --user vagrant
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/eventkit/stdout.log
+stdout_logfile_maxbytes=50MB
+stdout_logfile_backups=5
+stderr_logfile=/var/log/eventkit/stderr.log
+stderr_logfile_maxbytes=50MB
+stderr_logfile_backups=5
+stopsignal=INT
 
 [program:gunicorn-geonode]
 command =  /var/lib/eventkit/bin/gunicorn eventkit.wsgi:application
@@ -347,7 +374,13 @@ MaxSpareServers 4
         RequestHeader unset X-Script-Name
         RequestHeader add X-Script-Name "/mapproxy"
     </Location>
-
+    <Location /tegola>
+        ProxyPass http://192.168.99.120:8080
+        ProxyPassReverse http://192.168.99.120:8080
+        RequestHeader unset X-Script-Name
+        RequestHeader add X-Script-Name "/tegola"
+    </Location>
+		
     ProxyPass / http://eventkit.dev:6080/
     ProxyPassReverse / http://eventkit.dev:6080/
 
@@ -374,6 +407,7 @@ sudo systemctl enable firewalld
 sudo firewall-cmd --zone=public --add-port=6080/tcp --permanent
 sudo firewall-cmd --zone=public --add-port=7080/tcp --permanent
 sudo firewall-cmd --zone=public --add-port=5432/tcp --permanent
+sudo firewall-cmd --zone=public --add-port=8080/tcp --permanent
 # sudo firewall-cmd --zone=public --add-port=443/tcp --permanent
 sudo firewall-cmd --zone=public --add-port=80/tcp --permanent
 sudo firewall-cmd --reload
