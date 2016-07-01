@@ -55,10 +55,6 @@ sudo yum install mod_ssl mod_proxy_html mod_wsgi -y
 sudo yum install supervisor -y
 
 sudo git clone https://github.com/terranodo/eventkit.git
-cd eventkit
-sudo git checkout Use-requirements-txt
-sudo git submodule update --init
-cd ..
 sudo mv eventkit/* /var/lib/eventkit/
 
 cd /var/lib/
@@ -152,7 +148,7 @@ sudo grep -q "#'ENGINE'" /var/lib/eventkit/src/geonode/geonode/local_settings.py
 sudo sed -i "0,/'NAME': 'geonode'/! s/'NAME': 'geonode'/'NAME': 'geonode_data'/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
 sudo grep -q "'LOCATION' : 'http://localhost:8080/geoserver/'" /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i "s/'LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
 sudo grep -q "'PUBLIC_LOCATION' : 'http://localhost:8080/geoserver/'" /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i "s/'PUBLIC_LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'PUBLIC_LOCATION' : 'http:\/\/192.168.99.120\/geoserver\/'/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
-sudo grep -q 'SITEURL = "https://localhost/"' /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i 's/SITEURL = "http:\/\/localhost\/"/SITEURL = "http:\/\/192.168.99.120\/"/g' /var/lib/eventkit/src/geonode/geonode/local_settings.py
+sudo grep -q 'SITEURL = "http://localhost/"' /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i 's/SITEURL = "http:\/\/localhost\/"/SITEURL = "http:\/\/192.168.99.120\/"/g' /var/lib/eventkit/src/geonode/geonode/local_settings.py
 
 chown vagrant:vagrant -R /var/lib/eventkit
 sudo chmod -R 755 /var/lib/eventkit/src/geonode/geonode
@@ -169,6 +165,69 @@ sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py collectstatic --no
 sudo mkdir /var/lib/eventkit/src/geonode/geonode/uploaded/
 sudo mkdir /cache
 sudo chown vagrant:vagrant /cache
+
+# sudo echo '[unix_http_server]
+# file=/var/run/supervisor.sock
+
+# [supervisord]
+# pidfile=/var/run/supervisor.pid
+# logfile=/var/log/supervisor.log
+# logfile_backups=1
+
+# [rpcinterface:supervisor]
+# supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+# [supervisorctl]
+# serverurl=unix:///var/run/supervisor.sock
+
+# [group:eventkit]
+# programs=gunicorn-geonode,gunicorn-mapproxy
+# priority=999
+
+# [program:gunicorn-geonode]
+# command =  /var/lib/eventkit/bin/gunicorn eventkit.wsgi:application
+           # --bind eventkit.dev:6443
+           # --worker-class eventlet
+           # --workers 2
+           # --threads 4
+           # --access-logfile /var/log/eventkit/geonode-access-log.txt
+           # --error-logfile /var/log/eventkit/geonode-error-log.txt
+           # --name eventkit
+           # --user vagrant
+           # --keyfile /etc/pki/eventkit/key.pem
+           # --certfile /etc/pki/eventkit/cert.pem
+# autostart=true
+# autorestart=true
+# stdout_logfile=/var/log/eventkit/stdout.log
+# stdout_logfile_maxbytes=50MB
+# stdout_logfile_backups=5
+# stderr_logfile=/var/log/eventkit/stderr.log
+# stderr_logfile_maxbytes=50MB
+# stderr_logfile_backups=5
+# stopsignal=INT
+
+# [program:gunicorn-mapproxy]
+# command =  /var/lib/eventkit/bin/gunicorn mapproxy.wsgi:application
+           # --bind eventkit.dev:7443
+           # --worker-class eventlet
+           # --workers 4
+           # --threads 8
+           # --access-logfile /var/log/eventkit/mapproxy-access-log.txt
+           # --error-logfile /var/log/eventkit/mapproxy-error-log.txt
+           # --name eventkit
+           # --user vagrant
+           # --no-sendfile
+           # --keyfile /etc/pki/eventkit/key.pem
+           # --certfile /etc/pki/eventkit/cert.pem
+# autostart=true
+# autorestart=true
+# stdout_logfile=/var/log/eventkit/stdout.log
+# stdout_logfile_maxbytes=50MB
+# stdout_logfile_backups=5
+# stderr_logfile=/var/log/eventkit/stderr.log
+# stderr_logfile_maxbytes=50MB
+# stderr_logfile_backups=5
+# stopsignal=INT' > /etc/supervisord.conf
 
 sudo echo '[unix_http_server]
 file=/var/run/supervisor.sock
@@ -190,7 +249,7 @@ priority=999
 
 [program:gunicorn-geonode]
 command =  /var/lib/eventkit/bin/gunicorn eventkit.wsgi:application
-           --bind eventkit.dev:6443
+           --bind eventkit.dev:6080
            --worker-class eventlet
            --workers 2
            --threads 4
@@ -198,8 +257,6 @@ command =  /var/lib/eventkit/bin/gunicorn eventkit.wsgi:application
            --error-logfile /var/log/eventkit/geonode-error-log.txt
            --name eventkit
            --user vagrant
-           --keyfile /etc/pki/eventkit/key.pem
-           --certfile /etc/pki/eventkit/cert.pem
 autostart=true
 autorestart=true
 stdout_logfile=/var/log/eventkit/stdout.log
@@ -212,7 +269,7 @@ stopsignal=INT
 
 [program:gunicorn-mapproxy]
 command =  /var/lib/eventkit/bin/gunicorn mapproxy.wsgi:application
-           --bind eventkit.dev:7443
+           --bind eventkit.dev:7080
            --worker-class eventlet
            --workers 4
            --threads 8
@@ -221,8 +278,6 @@ command =  /var/lib/eventkit/bin/gunicorn mapproxy.wsgi:application
            --name eventkit
            --user vagrant
            --no-sendfile
-           --keyfile /etc/pki/eventkit/key.pem
-           --certfile /etc/pki/eventkit/cert.pem
 autostart=true
 autorestart=true
 stdout_logfile=/var/log/eventkit/stdout.log
@@ -233,11 +288,45 @@ stderr_logfile_maxbytes=50MB
 stderr_logfile_backups=5
 stopsignal=INT' > /etc/supervisord.conf
 
+# sudo echo 'ServerLimit 16
+# StartServers 2
+# MinSpareServers 2
+# MaxSpareServers 4
+# <VirtualHost *:443>
+    # ServerName eventkit.dev
+    # ServerAdmin webmaster@localhost
+    # DocumentRoot /var/lib/eventkit/src/geonode/geonode
+
+
+    # ErrorLog /var/log/httpd/error.log
+    # LogLevel warn
+    # CustomLog /var/log/httpd/access.log combined
+
+    # Alias /static/ /var/lib/eventkit/src/geonode/geonode/static_root/
+    # Alias /uploaded/ /var/lib/eventkit/src/geonode/geonode/uploaded/
+    # SSLEngine on
+    # SSLProxyEngine on
+    # SSLCertificateFile /etc/pki/eventkit/cert.pem
+    # SSLCertificateKeyFile /etc/pki/eventkit/key.pem
+    # ProxyRequests Off
+    # ProxyPreserveHost On
+    # <Location /mapproxy>
+        # ProxyPass https://192.168.99.120:7443
+        # ProxyPassReverse  https://192.168.99.120:7443
+        # RequestHeader unset X-Script-Name
+        # RequestHeader add X-Script-Name "/mapproxy"
+    # </Location>
+
+    # ProxyPass / https://eventkit.dev:6443/
+    # ProxyPassReverse / https://eventkit.dev:6443/
+
+# </VirtualHost>' > /etc/httpd/conf.d/eventkit.conf
+
 sudo echo 'ServerLimit 16
 StartServers 2
 MinSpareServers 2
 MaxSpareServers 4
-<VirtualHost *:443>
+<VirtualHost *:80>
     ServerName eventkit.dev
     ServerAdmin webmaster@localhost
     DocumentRoot /var/lib/eventkit/src/geonode/geonode
@@ -249,21 +338,18 @@ MaxSpareServers 4
 
     Alias /static/ /var/lib/eventkit/src/geonode/geonode/static_root/
     Alias /uploaded/ /var/lib/eventkit/src/geonode/geonode/uploaded/
-    SSLEngine on
-    SSLProxyEngine on
-    SSLCertificateFile /etc/pki/eventkit/cert.pem
-    SSLCertificateKeyFile /etc/pki/eventkit/key.pem
+    
     ProxyRequests Off
     ProxyPreserveHost On
     <Location /mapproxy>
-        ProxyPass https://192.168.99.120:7443
-        ProxyPassReverse  https://192.168.99.120:7443
+        ProxyPass http://192.168.99.120:7080
+        ProxyPassReverse  http://192.168.99.120:7080
         RequestHeader unset X-Script-Name
         RequestHeader add X-Script-Name "/mapproxy"
     </Location>
 
-    ProxyPass / https://eventkit.dev:6443/
-    ProxyPassReverse / https://eventkit.dev:6443/
+    ProxyPass / http://eventkit.dev:6080/
+    ProxyPassReverse / http://eventkit.dev:6080/
 
 </VirtualHost>' > /etc/httpd/conf.d/eventkit.conf
 
@@ -273,20 +359,23 @@ application = make_wsgi_app('/var/lib/eventkit/mapproxy/apps', allow_listing=Tru
 sudo chown vagrant:vagrant -R /var/lib/eventkit/
 sudo chmod -R 755 /var/lib/eventkit/
 
-sudo mkdir /etc/pki/eventkit
-cd /etc/pki/eventkit
-sudo openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj '/CN=eventkit.dev'
-sudo cp /etc/pki/eventkit/cert.pem /etc/pki/ca-trust/source/anchors/
-sudo cp /etc/pki/eventkit/key.pem /etc/pki/ca-trust/source/anchors/
-sudo update-ca-trust extract
+# sudo mkdir /etc/pki/eventkit
+# cd /etc/pki/eventkit
+# sudo openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj '/CN=eventkit.dev'
+# sudo cp /etc/pki/eventkit/cert.pem /etc/pki/ca-trust/source/anchors/
+# sudo cp /etc/pki/eventkit/key.pem /etc/pki/ca-trust/source/anchors/
+# sudo update-ca-trust extract
 
 sudo systemctl start firewalld
 sudo systemctl enable firewalld
 
-sudo firewall-cmd --zone=internal --add-port=6443/tcp --permanent
-sudo firewall-cmd --zone=internal --add-port=7443/tcp --permanent
+# sudo firewall-cmd --zone=internal --add-port=6443/tcp --permanent
+# sudo firewall-cmd --zone=internal --add-port=7443/tcp --permanent
+sudo firewall-cmd --zone=public --add-port=6080/tcp --permanent
+sudo firewall-cmd --zone=public --add-port=7080/tcp --permanent
 sudo firewall-cmd --zone=public --add-port=5432/tcp --permanent
-sudo firewall-cmd --zone=public --add-port=443/tcp --permanent
+# sudo firewall-cmd --zone=public --add-port=443/tcp --permanent
+sudo firewall-cmd --zone=public --add-port=80/tcp --permanent
 sudo firewall-cmd --reload
 sudo setsebool -P httpd_can_network_connect_db 1
 
