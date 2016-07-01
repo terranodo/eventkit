@@ -7,6 +7,7 @@ eventlet
 rtree
 imposm
 decorator
+webtest
 -e git://github.com/terranodo/mapproxy.git@addGeopackageCache#egg=mapproxy
 -e git://github.com/terranodo/django-mapproxy.git@registry#egg=django-mapproxy
 -e git://github.com/terranodo/osm-extract.git@master#egg=osm-extract
