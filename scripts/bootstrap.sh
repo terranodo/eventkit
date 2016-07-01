@@ -42,36 +42,36 @@ cd proj-4.9.2
 ./configure
 sudo make install
 cd ..
+
 sudo yum install proj-epsg -y
-
-
 sudo yum install python-pip -y
 sudo pip install --upgrade pip
-sudo pip install backports.ssl_match_hostname
-sudo pip install click
-sudo pip install mapproxy
+sudo pip install virtualenv
+
+sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialindex bzip2-devel -y
+sudo yum install python-imaging python-virtualenv python-psycopg2 libxml2-devel libxml2-python libxslt-devel libxslt-python -y 
+sudo yum install httpd -y
+sudo yum install mod_ssl mod_proxy_html mod_wsgi -y
+sudo yum install supervisor -y
+
+sudo git clone https://github.com/terranodo/eventkit.git
+cd eventkit
+sudo git checkout Use-requirements-txt
+sudo git submodule update --init
+cd ..
+sudo mv eventkit/* /var/lib/eventkit/
+
 cd /var/lib/
-sudo git clone https://github.com/terranodo/mapproxy.git
-cd mapproxy/
-sudo git checkout addGeopackageCache
-sudo rm -rf /usr/lib64/python2.7/site-packages/mapproxy
-sudo ln -s /var/lib/mapproxy/mapproxy /usr/lib64/python2.7/site-packages/
+sudo virtualenv eventkit
+source eventkit/bin/activate
+cd /var/lib/eventkit
+sudo env "PATH=$PATH" /var/lib/eventkit/bin/pip install -r /var/lib/eventkit/requirements.txt
 
-sudo pip install -e git://github.com/terranodo/django-mapproxy.git@registry#egg=django-mapproxy
-
-
-sudo pip install gdal
-sudo pip install uwsgi
-sudo pip install numpy
-sudo pip install gunicorn
-sudo pip install eventlet
 sudo chown vagrant:vagrant -R /var/lib/osmosis
-git clone https://github.com/terranodo/osm-extract.git
-sudo mv osm-extract /var/lib/osm-extract
-sudo chown -R vagrant:vagrant /var/lib/osm-extract
 sudo -u postgres psql -c 'CREATE ROLE vagrant WITH CREATEDB SUPERUSER LOGIN;'
 sudo -u postgres createdb -O vagrant vagrant
 
+cd -
 sudo git clone https://github.com/mapnik/mapnik.git
 cd mapnik
 sudo git checkout v3.0.10
@@ -90,11 +90,6 @@ export PATH=$PATH:/usr/local/bin
 sudo echo "PATH=$PATH:/usr/local/bin" >> /etc/profile.d/path.sh
 sudo env "PATH=$PATH" python setup.py install
 cd ..
-
-sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialindex bzip2-devel -y
-
-sudo pip install rtree
-sudo env "PATH=$PATH" pip install imposm
 
 cd /var/lib/eventkit
 sudo git clone https://github.com/mapbox/osm-bright.git
@@ -117,6 +112,7 @@ cd /var/lib/eventkit/mapproxy
 sudo wget http://download.omniscale.de/magnacarto/rel/dev-20160406-012a66a/magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
 sudo tar -xzvf magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
 sudo mv magnacarto-dev-20160406-012a66a-linux-amd64 magnacarto
+
 sudo yum install golang -y
 export GOROOT=/usr/lib/golang
 sudo echo "GOROOT=/usr/lib/golang" >> /etc/profile.d/path.sh
@@ -144,47 +140,33 @@ sudo -u postgres psql -d geonode_data -c 'CREATE EXTENSION postgis;'
 sudo -u postgres psql -d geonode_data -c 'GRANT ALL ON geometry_columns TO PUBLIC;'
 sudo -u postgres psql -d geonode_data -c 'GRANT ALL ON spatial_ref_sys TO PUBLIC;'
 
-#INSTALL GEONODE DEPENDENCIES
-sudo yum install python-imaging python-virtualenv python-psycopg2 libxml2-devel libxml2-python libxslt-devel libxslt-python -y 
-sudo yum install httpd -y
-sudo yum install mod_ssl mod_proxy_html mod_wsgi -y
-sudo pip install decorator
-
 # GEONODE SETUP
-sudo yum install supervisor -y
-cd ~
-sudo pip install git+https://github.com/ProminentEdge/django-osgeo-importer.git
-sudo git clone https://github.com/terranodo/eventkit.git
-sudo mv eventkit/* /var/lib/eventkit/
-git clone https://github.com/GeoNode/geonode.git
-sudo mv geonode/geonode /var/lib/eventkit/
-sudo ln -s /var/lib/eventkit/geonode /usr/lib/python2.7/site-packages/
-sudo ln -s /var/lib/eventkit/eventkit /usr/lib/python2.7/site-packages/
-sudo ln -s /var/lib/osm-extract/osm_extract /usr/lib/python2.7/site-packages/
 sudo mkdir /var/log/eventkit
-sudo pip install -e ~/geonode/
-
-sudo cp /var/lib/eventkit/geonode/local_settings.py.sample /var/lib/eventkit/geonode/local_settings.py
-sudo echo "ALLOWED_HOSTS = ['192.168.99.120', 'localhost', '::1']" | sudo tee --append /var/lib/eventkit/geonode/local_settings.py
-sudo echo "PROXY_ALLOWED_HOSTS = ('192.168.99.120', 'localhost', '::1')" | sudo tee --append /var/lib/eventkit/geonode/local_settings.py
-sudo echo "POSTGIS_VERSION = (2, 2, 2)" | sudo tee --append /var/lib/eventkit/geonode/local_settings.py
-sudo grep -q 'http://localhost:8000/' /var/lib/eventkit/geonode/local_settings.py && sudo sed -i "s/http:\/\/localhost:8000/http:\/\/localhost/g" /var/lib/eventkit/geonode/local_settings.py
-sudo grep -q "'ENGINE': ''" /var/lib/eventkit/geonode/local_settings.py && sudo sed -i "s/'ENGINE': ''/# 'ENGINE': ''/g" /var/lib/eventkit/geonode/local_settings.py
-sudo grep -q "#'ENGINE'" /var/lib/eventkit/geonode/local_settings.py && sudo sed -i "s/#'ENGINE'/'ENGINE'/g" /var/lib/eventkit/geonode/local_settings.py
-sudo sed -i "0,/'NAME': 'geonode'/! s/'NAME': 'geonode'/'NAME': 'geonode_data'/g" /var/lib/eventkit/geonode/local_settings.py
-sudo grep -q "'LOCATION' : 'http://localhost:8080/geoserver/'" /var/lib/eventkit/geonode/local_settings.py && sudo sed -i "s/'LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /var/lib/eventkit/geonode/local_settings.py
-sudo grep -q "'PUBLIC_LOCATION' : 'http://localhost:8080/geoserver/'" /var/lib/eventkit/geonode/local_settings.py && sudo sed -i "s/'PUBLIC_LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'PUBLIC_LOCATION' : 'http:\/\/192.168.99.120\/geoserver\/'/g" /var/lib/eventkit/geonode/local_settings.py
-sudo grep -q 'SITEURL = "https://localhost/"' /var/lib/eventkit/geonode/local_settings.py && sudo sed -i 's/SITEURL = "http:\/\/localhost\/"/SITEURL = "http:\/\/192.168.99.120\/"/g' /var/lib/eventkit/geonode/local_settings.py
+sudo cp /var/lib/eventkit/src/geonode/geonode/local_settings.py.sample /var/lib/eventkit/src/geonode/geonode/local_settings.py
+sudo echo "ALLOWED_HOSTS = ['192.168.99.120', 'localhost', '::1']" | sudo tee --append /var/lib/eventkit/src/geonode/geonode/local_settings.py
+sudo echo "PROXY_ALLOWED_HOSTS = ('192.168.99.120', 'localhost', '::1')" | sudo tee --append /var/lib/eventkit/src/geonode/geonode/local_settings.py
+sudo echo "POSTGIS_VERSION = (2, 2, 2)" | sudo tee --append /var/lib/eventkit/src/geonode/geonode/local_settings.py
+sudo grep -q 'http://localhost:8000/' /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i "s/http:\/\/localhost:8000/http:\/\/localhost/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
+sudo grep -q "'ENGINE': ''" /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i "s/'ENGINE': ''/# 'ENGINE': ''/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
+sudo grep -q "#'ENGINE'" /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i "s/#'ENGINE'/'ENGINE'/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
+sudo sed -i "0,/'NAME': 'geonode'/! s/'NAME': 'geonode'/'NAME': 'geonode_data'/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
+sudo grep -q "'LOCATION' : 'http://localhost:8080/geoserver/'" /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i "s/'LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
+sudo grep -q "'PUBLIC_LOCATION' : 'http://localhost:8080/geoserver/'" /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i "s/'PUBLIC_LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'PUBLIC_LOCATION' : 'http:\/\/192.168.99.120\/geoserver\/'/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
+sudo grep -q 'SITEURL = "https://localhost/"' /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i 's/SITEURL = "http:\/\/localhost\/"/SITEURL = "http:\/\/192.168.99.120\/"/g' /var/lib/eventkit/src/geonode/geonode/local_settings.py
 
 chown vagrant:vagrant -R /var/lib/eventkit
-sudo chmod -R 755 /var/lib/eventkit/geonode
-sudo chmod 777 /usr/lib/python2.7/site-packages/account
+sudo chmod -R 755 /var/lib/eventkit/src/geonode/geonode
+sudo chmod 777 /var/lib/eventkit/lib/python2.7/site-packages/account
 
 
-sudo python /var/lib/eventkit/manage.py makemigrations --noinput
-sudo python /var/lib/eventkit/manage.py migrate --noinput
-sudo python /var/lib/eventkit/manage.py collectstatic --noinput
-sudo mkdir /var/lib/eventkit/geonode/uploaded/
+export PATH=/var/lib/eventkit/bin:$PATH
+sudo echo "PATH=/var/lib/eventkit/bin:$PATH" >> /etc/profile.d/path.sh
+sudo ln -s /var/lib/eventkit/eventkit /var/lib/eventkit/lib/python2.7/site-packages/
+
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py makemigrations --noinput
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate --noinput
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py collectstatic --noinput
+sudo mkdir /var/lib/eventkit/src/geonode/geonode/uploaded/
 sudo mkdir /cache
 sudo chown vagrant:vagrant /cache
 
@@ -207,7 +189,7 @@ programs=gunicorn-geonode,gunicorn-mapproxy
 priority=999
 
 [program:gunicorn-geonode]
-command =  /bin/gunicorn eventkit.wsgi:application
+command =  /var/lib/eventkit/bin/gunicorn eventkit.wsgi:application
            --bind eventkit.dev:6443
            --worker-class eventlet
            --workers 2
@@ -229,7 +211,7 @@ stderr_logfile_backups=5
 stopsignal=INT
 
 [program:gunicorn-mapproxy]
-command =  /bin/gunicorn mapproxy.wsgi:application
+command =  /var/lib/eventkit/bin/gunicorn mapproxy.wsgi:application
            --bind eventkit.dev:7443
            --worker-class eventlet
            --workers 4
@@ -258,15 +240,15 @@ MaxSpareServers 4
 <VirtualHost *:443>
     ServerName eventkit.dev
     ServerAdmin webmaster@localhost
-    DocumentRoot /var/lib/eventkit/geonode
+    DocumentRoot /var/lib/eventkit/src/geonode/geonode
 
 
     ErrorLog /var/log/httpd/error.log
     LogLevel warn
     CustomLog /var/log/httpd/access.log combined
 
-    Alias /static/ /var/lib/eventkit/geonode/static_root/
-    Alias /uploaded/ /var/lib/eventkit/geonode/uploaded/
+    Alias /static/ /var/lib/eventkit/src/geonode/geonode/static_root/
+    Alias /uploaded/ /var/lib/eventkit/src/geonode/geonode/uploaded/
     SSLEngine on
     SSLProxyEngine on
     SSLCertificateFile /etc/pki/eventkit/cert.pem
@@ -286,7 +268,7 @@ MaxSpareServers 4
 </VirtualHost>' > /etc/httpd/conf.d/eventkit.conf
 
 echo "from mapproxy.multiapp import make_wsgi_app
-application = make_wsgi_app('/var/lib/eventkit/mapproxy/apps', allow_listing=True)" > /usr/lib64/python2.7/site-packages/mapproxy/wsgi.py
+application = make_wsgi_app('/var/lib/eventkit/mapproxy/apps', allow_listing=True)" > /var/lib/eventkit/src/mapproxy/mapproxy/wsgi.py
 
 sudo chown vagrant:vagrant -R /var/lib/eventkit/
 sudo chmod -R 755 /var/lib/eventkit/
@@ -345,9 +327,9 @@ sudo echo '[
             "voice": null
         }
     }
-]' > /var/lib/eventkit/geonode/fixtures.json
+]' > /var/lib/eventkit/src/geonode/geonode/fixtures.json
 
 
-sudo python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/geonode/fixtures.json
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/src/geonode/geonode/fixtures.json
 
 # python /var/lib/eventkit/scripts/osm_importer.py --name rio --url https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
