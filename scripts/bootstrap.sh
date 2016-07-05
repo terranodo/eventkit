@@ -54,7 +54,7 @@ sudo yum install httpd -y
 sudo yum install mod_ssl mod_proxy_html mod_wsgi -y
 sudo yum install supervisor -y
 
-# sudo mkdir /var/lib/eventkit
+sudo mkdir /var/lib/eventkit
 sudo git clone https://github.com/terranodo/eventkit.git
 sudo mv eventkit/* /var/lib/eventkit/
 
