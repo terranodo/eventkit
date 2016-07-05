@@ -78,6 +78,8 @@ def import_osm_data(dataset_name, dataset_url,
     generate_mapnik_file(database_name)
     tables = get_osm_bright_tables()
     generate_mapproxy_file(tables, database_name)
+    os.chmod('/var/lib/eventkit/mapproxy/apps/{}.yaml'.format(database_name), 420)
+    os.chmod('/var/lib/eventkit/mapproxy/apps/{}.xml'.format(database_name), 420)
     from register_service import register_service
     register_service(base_url='http://eventkit.dev/',
                      service_url='http://eventkit.dev/mapproxy/{}/service'.format(database_name),
@@ -229,6 +231,17 @@ def generate_mapproxy_file(tables, db_name):
         }
         layers.append({'name': table, 'title': '{0}_{1}'.format(db_name, table), 'sources': ['{}_cache'.format(table)]})
         sources[table] = {'type': 'mapnik', 'mapfile': '{}.xml'.format(db_name), 'layers': [table], 'transparent': True}
+    caches["all_layers_cache"] = {
+        'cache': {
+            'directory': '/cache/mapproxy/layer/{}_all_layers_cache'.format(db_name),
+            'directory_layout': 'tms',
+            'type': 'file'
+        },
+        'grids': ['default_grid'],
+        'sources': ['all_layers']
+    }
+    layers.append({'name': 'all_layers', 'title': '{}_all_layers'.format(db_name), 'sources': ['all_layers_cache']})
+    sources['all_layers'] = {'type': 'mapnik', 'mapfile': '{}.xml'.format(db_name), 'layers': [], 'transparent': True}
     mapproxy_yaml['caches'] = caches
     mapproxy_yaml['layers'] = layers
     mapproxy_yaml['sources'] = sources
@@ -332,6 +345,7 @@ for opt, arg in options:
         gpkg = True
     elif opt =='--help':
         usage()
+        quit()
 
 import_osm_data(name, url, data_directory=data_directory,
                 cache_directory=cache_directory, kml=kml, json=json,
