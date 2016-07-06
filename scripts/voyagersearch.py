@@ -27,21 +27,82 @@ def export_voyager_data(file_path, base_url):
     if not ids:
         print("No ID values found in file")
         quit()
+    services = []
     for data_id in ids:
         record = get_record(data_id, base_url)
         if record:
             format = record.get('format')
             title = record.get('title')
-            # if record.get('rest_endpoint'):
-            #     endpoint = record.get('rest_endpoint')
-            # else:
+            bbox = record.get('bbox')
             endpoint = record.get('path')
-            print('ID: {}\n'.format(data_id)
-                  + 'Title: {}\n'.format(title)
-                  + 'Format: {}\n'.format(format)
-                  + 'Endpoint: {}\n'.format(endpoint))
+
+            if format == 'application/x-arcgis-feature-server':
+                layers = get_feature_server_layers(endpoint)
+                for layer in layers:
+                    layer_endpoint = validate_endpoint(layer.get('url'))
+                    if not endpoint:
+                        print("Could not connect to service: {}".format(title))
+                    else:
+                        services.append({'title': layer.get('title'), 'url': layer_endpoint, 'bbox': bbox})
+
+            elif format == 'application/x-arcgis-feature-server-layer':
+                endpoint = validate_endpoint(endpoint)
+                if not endpoint:
+                    print("Could not connect to service: {}".format(title))
+                else:
+                    services.append({'title': title, 'url': endpoint, 'bbox': bbox})
+
+            elif format == 'application/vnd.ogc.wms_xml' or format == 'application/vnd.ogc.wms_layer_xml':
+                endpoint = validate_endpoint(endpoint)
+                if not endpoint:
+                    print("Could not connect to service: {}".format(title))
+                else:
+                    services.append({'title': title, 'url': endpoint, 'bbox': bbox})
+
+            else:
+                print("Format: '{}' is not yet supported".format(format))
         else:
             print("Could not find record for ID: {}".format(data_id))
+    for service in services:
+        print service
+
+
+def validate_endpoint(service_url):
+    try:
+        response = requests.get(service_url)
+        if response.status_code == 200:
+            return service_url
+        else:
+            raise requests.HTTPError
+    except requests.HTTPError:
+        try:
+            if response.status_code == 200:
+                return service_url
+            else:
+                raise requests.HTTPError
+        except requests.HTTPError:
+            try:
+                if response.status_code == 200:
+                    return service_url
+                else:
+                    raise requests.HTTPError
+            except requests.HTTPError:
+                print("Could not connect with requested service")
+                return None
+
+
+def get_feature_server_layers(service_url):
+    response = requests.get(service_url.rstrip('/') + '/layers?f=json')
+    if response.status_code != 200:
+        return None
+    response = response.json()
+    layers = []
+    for layer in response.get('layers'):
+        layer_id = layer.get('id')
+        layer_title = layer.get('name')
+        layer_url = service_url.rstrip('/') + '/{}'.format(layer_id)
+        layers.append({'title': layer_title, 'url': layer_url})
+    return layers
 
 
 def usage():
@@ -67,4 +128,6 @@ for opt, arg in options:
         quit()
 
 if baseurl and file_path:
-    export_voyager_data(file_path)
+    export_voyager_data(file_path, baseurl)
+else:
+    print("Baseurl and file path are required")
