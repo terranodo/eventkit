@@ -43,21 +43,32 @@ def export_voyager_data(file_path, base_url):
                     if not endpoint:
                         print("Could not connect to service: {}".format(title))
                     else:
-                        services.append({'title': layer.get('title'), 'url': layer_endpoint, 'bbox': bbox})
+                        services.append({'title': layer.get('title'), 'url': layer_endpoint, 'bbox': bbox, 'format': format})
 
             elif format == 'application/x-arcgis-feature-server-layer':
                 endpoint = validate_endpoint(endpoint)
                 if not endpoint:
                     print("Could not connect to service: {}".format(title))
                 else:
-                    services.append({'title': title, 'url': endpoint, 'bbox': bbox})
+                    services.append({'title': title, 'url': endpoint, 'bbox': bbox, 'format': format})
 
             elif format == 'application/vnd.ogc.wms_xml' or format == 'application/vnd.ogc.wms_layer_xml':
                 endpoint = validate_endpoint(endpoint)
                 if not endpoint:
                     print("Could not connect to service: {}".format(title))
                 else:
-                    services.append({'title': title, 'url': endpoint, 'bbox': bbox})
+                    services.append({'title': title, 'url': endpoint, 'bbox': bbox, 'format': format})
+
+            elif format == 'application/x-arcgis-image-server':
+                if record.get('wms_capabilities'):
+                    wms_endpoint = record.get('wms_capabilities')[0]
+                    wms_endpoint = validate_endpoint(wms_endpoint)
+                    if not wms_endpoint:
+                        print("Could not connect to service: {}".format(title))
+                    else:
+                        services.append({'title': title, 'url': wms_endpoint, 'bbox': bbox, 'format': format})
+                else:
+                    print('Could not find wms endpoint for image service {}'.format(title))
 
             else:
                 print("Format: '{}' is not yet supported".format(format))
