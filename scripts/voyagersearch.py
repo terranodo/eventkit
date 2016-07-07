@@ -33,6 +33,8 @@ def export_voyager_data(file_path, base_url):
         if record:
             format = record.get('format')
             title = record.get('title')
+            if not title:
+                title = record.get('name')
             bbox = record.get('bbox')
             endpoint = record.get('path')
 
@@ -70,12 +72,22 @@ def export_voyager_data(file_path, base_url):
                 else:
                     print('Could not find wms endpoint for image service {}'.format(title))
 
+            elif format == 'text/csv':
+                print record
+                endpoint = validate_endpoint(endpoint)
+                if not endpoint:
+                    print("Could not connect to data endpoint")
+                else:
+                    services.append({'title': title, 'url': endpoint, 'bbox': bbox, 'format': format})
+
             else:
                 print("Format: '{}' is not yet supported".format(format))
         else:
             print("Could not find record for ID: {}".format(data_id))
     for service in services:
         print service
+
+    return services
 
 
 def validate_endpoint(service_url):
