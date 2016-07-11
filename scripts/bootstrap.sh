@@ -162,6 +162,9 @@ sudo chmod -R 755 /var/lib/eventkit/src/geonode/geonode
 sudo chmod 777 /var/lib/eventkit/lib/python2.7/site-packages/account
 
 
+cd /var/lib/eventkit/src/geonode
+git pull https://github.com/lukerees/osm-extract.git ol3-preview
+
 export PATH=/var/lib/eventkit/bin:$PATH
 sudo echo "PATH=/var/lib/eventkit/bin:$PATH" >> /etc/profile.d/path.sh
 sudo ln -s /var/lib/eventkit/eventkit /var/lib/eventkit/lib/python2.7/site-packages/
