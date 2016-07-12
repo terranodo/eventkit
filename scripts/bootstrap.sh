@@ -164,6 +164,8 @@ sudo chmod 777 /var/lib/eventkit/lib/python2.7/site-packages/account
 
 
 cd /var/lib/eventkit/src/geonode
+git add -A
+git commit -m "commit"
 git pull https://github.com/lukerees/geonode.git ol3-preview
 
 export PATH=/var/lib/eventkit/bin:$PATH
