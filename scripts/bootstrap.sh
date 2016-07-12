@@ -110,22 +110,22 @@ sudo wget http://download.omniscale.de/magnacarto/rel/dev-20160406-012a66a/magna
 sudo tar -xzvf magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
 sudo mv magnacarto-dev-20160406-012a66a-linux-amd64 magnacarto
 
-sudo yum install golang -y
-export GOROOT=/usr/lib/golang
-sudo echo "GOROOT=/usr/lib/golang" >> /etc/profile.d/path.sh
+cd ~
+sudo wget https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
+sudo tar -C /usr/lib -xzf go1.6.2.linux-amd64.tar.gz
+export GOROOT=/usr/lib/go
+sudo echo "GOROOT=/usr/lib/go" >> /etc/profile.d/path.sh
 export GOPATH=/var/lib/eventkit
 sudo echo "GOPATH=/var/lib/eventkit" >> /etc/profile.d/path.sh
+export PATH=$PATH:/usr/lib/go/bin
+sudo echo "PATH=$PATH:/usr/lib/go/bin" >> /etc/profile.d/path.sh
 cd /var/lib/eventkit
 
-env "GOPATH=$GOPATH" go get -d github.com/omniscale/go-mapnik
-env "GOPATH=$GOPATH" go generate github.com/omniscale/go-mapnik
-env "GOPATH=$GOPATH" go install github.com/omniscale/go-mapnik
-env "GOPATH=$GOPATH" go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
-env "GOPATH=$GOPATH" go build github.com/golang/protobuf/proto
-env "GOPATH=$GOPATH" go install github.com/golang/protobuf/proto
-env "GOPATH=$GOPATH" go get -d github.com/terranodo/tegola
-env "GOPATH=$GOPATH" go build github.com/terranodo/tegola/cmd/tegola/main.go
-env "GOPATH=$GOPATH" go install github.com/terranodo/tegola/cmd/tegola/
+env GOROOT=$GOROOT GOPATH=$GOPATH go get -d github.com/omniscale/go-mapnik
+env GOROOT=$GOROOT GOPATH=$GOPATH go generate github.com/omniscale/go-mapnik
+env GOROOT=$GOROOT GOPATH=$GOPATH go install github.com/omniscale/go-mapnik
+env GOROOT=$GOROOT GOPATH=$GOPATH go get -d github.com/terranodo/tegola
+env GOROOT=$GOROOT GOPATH=$GOPATH go install github.com/terranodo/tegola/cmd/tegola/
 cd -
 sudo grep -q '   peer' /var/lib/pgsql/9.5/data/pg_hba.conf && sudo sed -i "s/   peer/   trust/g" /var/lib/pgsql/9.5/data/pg_hba.conf
 sudo grep -q '   ident' /var/lib/pgsql/9.5/data/pg_hba.conf && sudo sed -i "s/   ident/   trust/g" /var/lib/pgsql/9.5/data/pg_hba.conf
