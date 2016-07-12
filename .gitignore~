@@ -1,7 +1,0 @@
-*.pyc
-*.db
-.vagrant
-src
-pkg
-.DS_Store
-eventkit.egg-info/
