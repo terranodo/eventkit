@@ -130,7 +130,8 @@ def get_feature_server_layers(service_url):
 
 
 def usage():
-    print('--file or -f: (required) The path of the voyager export csv file')
+    print('--file or -f: (required) The path of the voyager export csv file\n'
+          '--baseurl or -u: (required) The base url of target voyager instance')
 
 try:
     options, remainder = getopt.getopt(
