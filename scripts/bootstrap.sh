@@ -163,7 +163,10 @@ sudo chmod 777 /var/lib/eventkit/lib/python2.7/site-packages/account
 
 
 cd /var/lib/eventkit/src/geonode
+
+git stash
 git pull https://github.com/lukerees/geonode.git ol3-preview
+git stash pop
 
 export PATH=/var/lib/eventkit/bin:$PATH
 sudo echo "PATH=/var/lib/eventkit/bin:$PATH" >> /etc/profile.d/path.sh
