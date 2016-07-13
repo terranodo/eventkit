@@ -62,6 +62,7 @@ def export_voyager_data(file_path, base_url):
 
             elif format == 'application/vnd.ogc.wms_xml' or format == 'application/vnd.ogc.wms_layer_xml':
                 endpoint = validate_endpoint(endpoint)
+                endpoint = endpoint.replace('layer.name', 'layers')
                 if not endpoint:
                     print("Could not connect to service: {}".format(title))
                 else:
@@ -79,7 +80,6 @@ def export_voyager_data(file_path, base_url):
                     print('Could not find wms endpoint for image service {}'.format(title))
 
             elif format == 'text/csv':
-                print record
                 endpoint = validate_endpoint(endpoint)
                 if not endpoint:
                     print("Could not connect to data endpoint")
@@ -90,6 +90,7 @@ def export_voyager_data(file_path, base_url):
                 print("Format: '{}' is not yet supported".format(format))
         else:
             print("Could not find record for ID: {}".format(data_id))
+
     for service in services:
         print service
 
@@ -135,7 +136,8 @@ def get_feature_server_layers(service_url):
 
 
 def usage():
-    print('--file or -f: (required) The path of the voyager export csv file')
+    print('--file or -f: (required) The path of the voyager export csv file\n'
+          '--baseurl or -u: (required) The base url of target voyager instance')
 
 
 def main(args):
