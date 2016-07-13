@@ -8,7 +8,11 @@ def get_record(data_id, base_url):
     request_url = base_url.rstrip('/') + '/api/rest/index/record/{}'.format(data_id)
     req = requests.get(request_url)
     if req.status_code == 200:
-        return req.json()
+        try:
+            response = req.json()
+            return response
+        except ValueError:
+            return None
     else:
         return None
 
@@ -40,6 +44,8 @@ def export_voyager_data(file_path, base_url):
 
             if format == 'application/x-arcgis-feature-server':
                 layers = get_feature_server_layers(endpoint)
+                if not layers:
+                    continue
                 for layer in layers:
                     layer_endpoint = validate_endpoint(layer.get('url'))
                     if not endpoint:
@@ -131,26 +137,31 @@ def get_feature_server_layers(service_url):
 def usage():
     print('--file or -f: (required) The path of the voyager export csv file')
 
-try:
-    options, remainder = getopt.getopt(
-        sys.argv[1:], 'f:u:h', ['file=', 'baseurl=', 'help'])
-except getopt.GetoptError as err:
-    print (err)
-    quit()
 
-file_path = None
-baseurl = None
-
-for opt, arg in options:
-    if opt in ('-f', '--file'):
-        file_path = arg
-    elif opt in ('-u', '--baseurl'):
-        baseurl = arg
-    elif opt in ('-h', '--help'):
-        usage()
+def main(args):
+    try:
+        options, remainder = getopt.getopt(
+            args, 'f:u:h', ['file=', 'baseurl=', 'help'])
+    except getopt.GetoptError as err:
+        print (err)
         quit()
 
-if baseurl and file_path:
-    export_voyager_data(file_path, baseurl)
-else:
-    print("Baseurl and file path are required")
+    file_path = None
+    baseurl = None
+
+    for opt, arg in options:
+        if opt in ('-f', '--file'):
+            file_path = arg
+        elif opt in ('-u', '--baseurl'):
+            baseurl = arg
+        elif opt in ('-h', '--help'):
+            usage()
+            quit()
+
+    if baseurl and file_path:
+        export_voyager_data(file_path, baseurl)
+    else:
+        print("Baseurl and file path are required")
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

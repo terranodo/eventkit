@@ -3,6 +3,7 @@ from django.views.generic import TemplateView
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.views.generic.base import RedirectView
 from geonode.urls import *
+from .views import register_service, import_voyager_cart
 
 urlpatterns = patterns('',
    url(r'^/?$',
@@ -16,4 +17,6 @@ urlpatterns = patterns('',
         name="favicon"
     ),
     (r'^djmp/', include('djmp.urls')),
+    url(r'^eventkit/register$', register_service),
+    url(r'^eventkit/voyager$', import_voyager_cart),
 ) + urlpatterns

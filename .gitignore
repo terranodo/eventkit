@@ -6,3 +6,4 @@ pkg
 .idea
 .DS_Store
 eventkit.egg-info/
+data/
