@@ -8,6 +8,7 @@ import logging
 import sys
 from .voyagersearch import export_voyager_data
 from django.db import IntegrityError
+from django.conf import settings
 
 log = logging.getLogger(__name__)
 
@@ -43,12 +44,12 @@ def create_tileset_from_conf_dict(conf_dict, name):
     name = name
     created_by = "Eventkit Service"
     cache_type = 'file'
-    directory_layout = None
-    directory = None
+    directory_layout = 'tms'
+    directory = getattr(settings, 'CACHE_DIR', '/cache')
     filename = None
     table_name = None
     server_url = None
-    server_service_type = 'wms'
+    source_type = 'wms'
     mapfile = None
     layer_zoom_stop = 6
 
@@ -69,7 +70,6 @@ def create_tileset_from_conf_dict(conf_dict, name):
 
                 if layer_source_data.get('cache').get('grids'):
                     for grid in layer_source_data.get('cache').get('grids'):
-
                         if grid.get('srs').lower() == 'epsg:4326':
                             temp_bbox = conf_dict.get('grids').get(grid).get('bbox')
                             if bbox and temp_bbox:

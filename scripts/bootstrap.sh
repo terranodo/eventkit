@@ -52,6 +52,7 @@ sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialinde
 sudo yum install python-imaging python-virtualenv python-psycopg2 libxml2-devel libxml2-python libxslt-devel libxslt-python -y 
 sudo yum install httpd -y
 sudo yum install mod_ssl mod_proxy_html mod_wsgi -y
+sudo yum install rabbitmq-server -y
 sudo yum install supervisor -y
 
 sudo mkdir /var/lib/eventkit
@@ -257,7 +258,7 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 serverurl=unix:///var/run/supervisor.sock
 
 [group:eventkit]
-programs=gunicorn-geonode,gunicorn-mapproxy,tegola
+programs=gunicorn-geonode,gunicorn-mapproxy,tegola,celery-worker1
 priority=999
 
 [program:tegola]
@@ -299,6 +300,19 @@ stderr_logfile=/var/log/eventkit/stderr.log
 stderr_logfile_maxbytes=50MB
 stderr_logfile_backups=5
 stopsignal=INT
+
+[program:celery-worker1]
+command =   /var/lib/eventkit/bin/celery worker
+            --app=eventkit.celery_app
+            --uid vagrant
+            --loglevel=info
+            --workdir=/var/lib/eventkit/eventkit
+stdout_logfile=/var/log/eventkit/celery-w1-stdout.log
+stderr_logfile=/var/log/eventkit/celery-w1-stderr.log
+autostart=true
+autorestart=true
+startsecs=10
+stopwaitsecs=600
 
 [program:gunicorn-mapproxy]
 command =  /var/lib/eventkit/bin/gunicorn mapproxy.wsgi:application
@@ -418,6 +432,9 @@ sudo firewall-cmd --zone=public --add-port=8080/tcp --permanent
 sudo firewall-cmd --zone=public --add-port=80/tcp --permanent
 sudo firewall-cmd --reload
 sudo setsebool -P httpd_can_network_connect_db 1
+
+sudo service rabbitmq-server start
+sudo systemctl enable rabbitmq-server
 
 sudo service supervisord start
 sudo systemctl enable supervisord

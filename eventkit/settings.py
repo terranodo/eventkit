@@ -70,7 +70,7 @@ LOCALE_PATHS = (
     os.path.join(LOCAL_ROOT, 'locale'),
     ) + LOCALE_PATHS
 
-INSTALLED_APPS += ("osgeo_importer", "osm_extract", "celery", "kombu.transport.django",)
+INSTALLED_APPS += ("eventkit", "osgeo_importer", "osm_extract", "celery", "kombu.transport.django",)
 
 BROKER_URL = 'django://'
 #CELERY_ACCEPT_CONTENT = ['json']
@@ -78,3 +78,6 @@ BROKER_URL = 'django://'
 #CELERY_RESULT_SERIALIZER = 'json'
 #CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_ALWAYS_EAGER = False 
+CACHE_DIR = '/cache'
+LAYER_PREVIEW_LIBRARY = 'OL3'
+
