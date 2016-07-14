@@ -88,27 +88,27 @@ sudo echo "PATH=$PATH:/usr/local/bin" >> /etc/profile.d/path.sh
 sudo env "PATH=$PATH" python setup.py install
 cd ..
 
-cd /var/lib/eventkit
-sudo git clone https://github.com/mapbox/osm-bright.git
-cd osm-bright
-sudo cp /var/lib/eventkit/osm-bright/osm-bright/fonts/* /usr/local/lib/mapnik/fonts/
-sudo cp /var/lib/eventkit/osm-bright/configure.py.sample /var/lib/eventkit/osm-bright/configure.py
-sudo yum install unzip -y
-sudo grep -q 'config\["importer"\] = "osm2pgsql"' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["importer"\] = "osm2pgsql"/config\["importer"\] = "imposm"/g' /var/lib/eventkit/osm-bright/configure.py
-sudo grep -q 'config\["postgis"\]\["user"\]     = ""' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["postgis"\]\["user"\]     = ""/config\["postgis"\]\["user"\]     = "postgres"/g' /var/lib/eventkit/osm-bright/configure.py
-sudo grep -q 'config\["postgis"\]\["password"\] = ""' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["postgis"\]\["password"\] = ""/config\["postgis"\]\["password"\] = "postgres"/g' /var/lib/eventkit/osm-bright/configure.py
-sudo grep -q  'path\.expanduser("\~\/Documents\/MapBox\/project")' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/path\.expanduser("\~\/Documents\/MapBox\/project")/path\.expanduser("\/var\/lib\/eventkit\/mapproxy")/g' /var/lib/eventkit/osm-bright/configure.py
-sudo mkdir /var/lib/eventkit/osm-bright/shp
-cd /var/lib/eventkit/osm-bright/shp
-sudo wget http://data.openstreetmapdata.com/simplified-land-polygons-complete-3857.zip
-sudo unzip simplified-land-polygons-complete-3857
-sudo wget http://data.openstreetmapdata.com/land-polygons-split-3857.zip
-sudo unzip land-polygons-split-3857
-sudo mkdir -p /var/lib/eventkit/mapproxy/apps
-cd /var/lib/eventkit/mapproxy
-sudo wget http://download.omniscale.de/magnacarto/rel/dev-20160406-012a66a/magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
-sudo tar -xzvf magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
-sudo mv magnacarto-dev-20160406-012a66a-linux-amd64 magnacarto
+# cd /var/lib/eventkit
+# sudo git clone https://github.com/mapbox/osm-bright.git
+# cd osm-bright
+# sudo cp /var/lib/eventkit/osm-bright/osm-bright/fonts/* /usr/local/lib/mapnik/fonts/
+# sudo cp /var/lib/eventkit/osm-bright/configure.py.sample /var/lib/eventkit/osm-bright/configure.py
+# sudo yum install unzip -y
+# sudo grep -q 'config\["importer"\] = "osm2pgsql"' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["importer"\] = "osm2pgsql"/config\["importer"\] = "imposm"/g' /var/lib/eventkit/osm-bright/configure.py
+# sudo grep -q 'config\["postgis"\]\["user"\]     = ""' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["postgis"\]\["user"\]     = ""/config\["postgis"\]\["user"\]     = "postgres"/g' /var/lib/eventkit/osm-bright/configure.py
+# sudo grep -q 'config\["postgis"\]\["password"\] = ""' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["postgis"\]\["password"\] = ""/config\["postgis"\]\["password"\] = "postgres"/g' /var/lib/eventkit/osm-bright/configure.py
+# sudo grep -q  'path\.expanduser("\~\/Documents\/MapBox\/project")' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/path\.expanduser("\~\/Documents\/MapBox\/project")/path\.expanduser("\/var\/lib\/eventkit\/mapproxy")/g' /var/lib/eventkit/osm-bright/configure.py
+# sudo mkdir /var/lib/eventkit/osm-bright/shp
+# cd /var/lib/eventkit/osm-bright/shp
+# sudo wget http://data.openstreetmapdata.com/simplified-land-polygons-complete-3857.zip
+# sudo unzip simplified-land-polygons-complete-3857
+# sudo wget http://data.openstreetmapdata.com/land-polygons-split-3857.zip
+# sudo unzip land-polygons-split-3857
+# sudo mkdir -p /var/lib/eventkit/mapproxy/apps
+# cd /var/lib/eventkit/mapproxy
+# sudo wget http://download.omniscale.de/magnacarto/rel/dev-20160406-012a66a/magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
+# sudo tar -xzvf magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
+# sudo mv magnacarto-dev-20160406-012a66a-linux-amd64 magnacarto
 
 cd ~
 sudo wget https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
@@ -164,6 +164,8 @@ sudo chmod 777 /var/lib/eventkit/lib/python2.7/site-packages/account
 
 
 cd /var/lib/eventkit/src/geonode
+git add -A
+git commit -m "commit"
 git pull https://github.com/lukerees/geonode.git ol3-preview
 
 export PATH=/var/lib/eventkit/bin:$PATH
