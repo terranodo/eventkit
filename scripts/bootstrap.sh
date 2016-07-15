@@ -104,7 +104,7 @@ cd ..
 # sudo unzip simplified-land-polygons-complete-3857
 # sudo wget http://data.openstreetmapdata.com/land-polygons-split-3857.zip
 # sudo unzip land-polygons-split-3857
-# sudo mkdir -p /var/lib/eventkit/mapproxy/apps
+sudo mkdir -p /var/lib/eventkit/mapproxy/apps
 # cd /var/lib/eventkit/mapproxy
 # sudo wget http://download.omniscale.de/magnacarto/rel/dev-20160406-012a66a/magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
 # sudo tar -xzvf magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
@@ -425,40 +425,6 @@ sudo systemctl enable supervisord
 sudo systemctl start httpd
 sudo systemctl enable httpd
 
-sudo echo '[
-    {
-        "pk": 1,
-        "model": "people.profile",
-        "fields": {
-            "profile": null,
-            "last_name": "",
-            "is_staff": true,
-            "user_permissions": [],
-            "date_joined": "2016-06-15T14:25:19.000",
-            "city": null,
-            "first_name": "",
-            "area": null,
-            "zipcode": null,
-            "is_superuser": true,
-            "last_login": "2016-06-15T14:25:19.000",
-            "email": "admin@geonode.org",
-            "username": "admin",
-            "fax": null,
-            "is_active": true,
-            "delivery": null,
-            "groups": [
-                1
-            ],
-            "organization": null,
-            "password": "pbkdf2_sha256$20000$qH1pQEscvOgy$ypOQA/Ogej//J0218c39CFXobmv14050/hwWHnvhgxg=",
-            "country": null,
-            "position": null,
-            "voice": null
-        }
-    }
-]' > /var/lib/eventkit/src/geonode/geonode/fixtures.json
-
-
-sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/src/geonode/geonode/fixtures.json
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/eventkit/fixtures/admin_user.json
 
 # python /var/lib/eventkit/scripts/osm_importer.py --name rio --url https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
