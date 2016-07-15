@@ -156,7 +156,6 @@ sudo sed -i "0,/'NAME': 'geonode'/! s/'NAME': 'geonode'/'NAME': 'geonode_data'/g
 sudo grep -q "'LOCATION' : 'http://localhost:8080/geoserver/'" /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i "s/'LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
 sudo grep -q "'PUBLIC_LOCATION' : 'http://localhost:8080/geoserver/'" /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i "s/'PUBLIC_LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'PUBLIC_LOCATION' : 'http:\/\/192.168.99.120\/geoserver\/'/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
 sudo grep -q 'SITEURL = "http://localhost/"' /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i 's/SITEURL = "http:\/\/localhost\/"/SITEURL = "http:\/\/192.168.99.120\/"/g' /var/lib/eventkit/src/geonode/geonode/local_settings.py
-sudo echo "LAYER_PREVIEW_LIBRARY = 'OL3'" >> /var/lib/eventkit/eventkit/settings.py
 
 chown vagrant:vagrant -R /var/lib/eventkit
 sudo chmod -R 755 /var/lib/eventkit/src/geonode/geonode
