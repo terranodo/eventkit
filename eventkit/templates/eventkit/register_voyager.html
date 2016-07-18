@@ -58,24 +58,26 @@
                     },
                     statusCode: {202: displaySuccess},
                     success: console.log('success'),
-                    error: displayFailure
+                    error: function(){displayFailure("VoyagerSearch services failed to be processed correctly.")}
                 });
             }
         }
 
         function displaySuccess() {
             $("#msgLabel").text("VoyagerSearch services successfully submitted.");
+            $("#msgLabel").css('color','green');
             setTimeout(function () {
                 $("#msgLabel").text("");
-            }, 4000);
+            }, 5000);
             return false;
         }
 
-        function displayFailure() {
-            $("#msgLabel").text("VoyagerSearch services submission failed.");
+        function displayFailure(msg) {
+            $("#msgLabel").text(msg);
+            $("#msgLabel").css('color','red');
             setTimeout(function () {
                 $("#msgLabel").text("");
-            }, 4000);
+            }, 5000);
             return false;
         }
 
@@ -84,7 +86,13 @@
             reader.readAsText(file);
             reader.onload = function (event) {
                 var csv = event.target.result;
-                var data = $.csv.toArrays(csv);
+                var data;
+                try {
+                    data = $.csv.toArrays(csv);
+                }catch(CSVDataError){
+                    displayFailure("The file does not appear to be a valid CSV file.");
+                    return false;
+                }
                 var html = '';
                 var voyager_ids = []
                 for (var row in data) {
@@ -96,7 +104,6 @@
                     }
                 }
                 submitForm(voyager_ids)
-
             };
             reader.onerror = function () {
                 alert('Unable to read ' + file.name);
