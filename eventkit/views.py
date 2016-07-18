@@ -1,8 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from .service_manager import create_conf_from_wms, create_confs_from_voyager
+from .service_manager import create_conf_from_wms
 import json
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from .tasks import task_create_confs_from_voyager
+from .forms import RegisterVoyager
+from django.shortcuts import render
 
 @login_required
 def register_service(request):
@@ -12,25 +14,25 @@ def register_service(request):
         service_type = request.POST.get("service_type")
         if 'wms' in service_type.lower():
             create_conf_from_wms(service_url, name=service_name)
-        return HttpResponseRedirect("/layers/", status=202)
+        return HttpResponse("/layers/", status=202)
     else:
         return HttpResponse(
             json.dumps("This endpoint requires POST."),
             content_type='application/json',
             status=405
         )
-
 
 @login_required
 def import_voyager_cart(request):
-    if request.method == "POST":
-        service_file = request.POST.get("service_file")
-        voyager_base_url = request.POST.get("voyager_base_url")
-        task_create_confs_from_voyager.apply_async(args=(service_file, voyager_base_url))
-        return HttpResponseRedirect("/layers/", status=202)
+    if request.is_ajax() or request.method == "POST":
+        form = RegisterVoyager(request.POST, request.FILES)
+        if form.is_valid():
+            task_create_confs_from_voyager.apply_async(args=(form.cleaned_data['voyager_base_url'],
+                                                             request.POST.getlist('voyager_ids')))
+            return HttpResponse(status=202)
+        else:
+            return HttpResponse(status=400)
     else:
-        return HttpResponse(
-            json.dumps("This endpoint requires POST."),
-            content_type='application/json',
-            status=405
-        )
+        form = RegisterVoyager()
+        return render(request, 'eventkit/register_voyager.html', {'form': form})
+

@@ -5,7 +5,6 @@ from mapproxy.script.conf.app import config_command
 import yaml
 from django.core.files.temp import NamedTemporaryFile
 import logging
-import sys
 from .voyagersearch import export_voyager_data
 from django.db import IntegrityError
 from django.conf import settings
@@ -14,11 +13,17 @@ log = logging.getLogger(__name__)
 
 
 def create_conf_from_wms(wms_url, name="Eventkit", bbox=None):
+    """
+
+    :param wms_url: A URL for an external service.
+    :param name: The name of the service.
+    :param bbox: A bounding box as an array (e.g. [-180, -89, 180, 89])(not implemented)
+    :return: None
+    """
     temp_file = NamedTemporaryFile()
     # wms_url = wms_url.replace('"','')
     params = ['--capabilities', wms_url, '--output', temp_file.name, '--force']
     config_command(params)
-
     conf_dict = None
     try:
         conf_dict = yaml.load(temp_file)
@@ -27,19 +32,31 @@ def create_conf_from_wms(wms_url, name="Eventkit", bbox=None):
     create_tileset_from_conf_dict(conf_dict, name)
 
 
-def create_confs_from_voyager(service_list, base_url, bbox=None):
-    print(service_list)
-    print(base_url)
-    sys.stdout.flush()
-    service_list = export_voyager_data(service_list, base_url)
+def create_confs_from_voyager(base_url, voyager_ids, bbox=None):
+    """
+
+    :param base_url: URL of server running voyagersearch
+    :param voyager_ids: A list of ids to request relevant metadata from voyager.
+    :param bbox: A bounding box to narrow results (e.g. [-180, -89, 180, 89])(not implemented)
+    :return: None
+    """
+    service_list = export_voyager_data(base_url, voyager_ids=voyager_ids)
+    if not service_list:
+        return None
     for service in service_list:
         if 'wms' in service.get('format'):
             if not service.get('url'):
-                return
+                continue
             create_conf_from_wms(service.get('url'), name=service.get('title'))
 
 
 def create_tileset_from_conf_dict(conf_dict, name):
+    """
+
+    :param conf_dict: A mapproxy configuration yaml as a dict.
+    :param name: The desired name of the new service.
+    :return: None
+    """
 
     name = name
     created_by = "Eventkit Service"
@@ -54,8 +71,6 @@ def create_tileset_from_conf_dict(conf_dict, name):
     layer_zoom_stop = 6
 
     layers = get_layers(conf_dict.get('layers'))
-    print(str(layers))
-    sys.stdout.flush()
     for layer in layers:
         layer_name = layer.get('name')
         bbox = None
@@ -104,12 +119,15 @@ def create_tileset_from_conf_dict(conf_dict, name):
                                           source_type=source_type,
                                           mapfile=mapfile,
                                           layer_zoom_stop=layer_zoom_stop)
-            print("Creating tileset for name: {}".format(name))
         except IntegrityError:
             continue
-    sys.stdout.flush()
 
 def get_layers(layers):
+    """
+
+    :param layers: A layer dict from the mapproxy configuration.
+    :return: A flattened version of the layer dict (i.e. not nested).
+    """
     layer_list = []
     for layer in layers:
         if isinstance(layer, dict) and layer.get('layers'):
@@ -117,3 +135,6 @@ def get_layers(layers):
         else:
             layer_list += [layer]
     return layer_list
+
+
+

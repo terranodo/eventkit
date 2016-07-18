@@ -26,13 +26,13 @@ def read_voyager_cart(cart_file):
     return id_list
 
 
-def export_voyager_data(file_path, base_url):
-    ids = read_voyager_cart(file_path)
-    if not ids:
-        print("No ID values found in file")
-        quit()
+def export_voyager_data(base_url, voyager_ids=None, file_path=None):
+    if file_path:
+        voyager_ids = read_voyager_cart(file_path)
+    if not voyager_ids:
+        return None
     services = []
-    for data_id in ids:
+    for data_id in voyager_ids:
         record = get_record(data_id, base_url)
         if record:
             format = record.get('format')
@@ -90,9 +90,6 @@ def export_voyager_data(file_path, base_url):
                 print("Format: '{}' is not yet supported".format(format))
         else:
             print("Could not find record for ID: {}".format(data_id))
-
-    for service in services:
-        print service
 
     return services
 

@@ -1,0 +1,142 @@
+{% extends "services/services_base.html" %}
+{% load bootstrap_tags %}
+{% load i18n %}
+
+{% block head %}
+{{ block.super }}
+{% load staticfiles %}
+<script src="{% static "eventkit/jquery-3.1.0.min.js" %}"></script>
+<script src="{% static "eventkit/jquery.csv.min.js" %}" defer></script>
+{% endblock %}
+
+{% block title %} Register Service - {{ block.super }} {% endblock %}
+{% block body_outer %}
+<script type="text/javascript" defer>
+    $(document).ready(function () {
+
+        $('#submit-form').submit(function (event) {
+            if (isAPIAvailable()) {
+                readTable($('#id_file').prop('files')[0])
+            }
+            event.preventDefault();
+        });
+
+        function isAPIAvailable() {
+            // Check for the various File API support.
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+                // Great success! All the File APIs are supported.
+                return true;
+            } else {
+                // source: File API availability - http://caniuse.com/#feat=fileapi
+                // source: <output> availability - http://html5doctor.com/the-output-element/
+                document.writeln('The HTML5 APIs used in this form are only available in the following browsers:<br />');
+                // 6.0 File API & 13.0 <output>
+                document.writeln(' - Google Chrome: 13.0 or later<br />');
+                // 3.6 File API & 6.0 <output>
+                document.writeln(' - Mozilla Firefox: 6.0 or later<br />');
+                // 10.0 File API & 10.0 <output>
+                document.writeln(' - Internet Explorer: Not supported (partial support expected in 10.0)<br />');
+                // ? File API & 5.1 <output>
+                document.writeln(' - Safari: Not supported<br />');
+                // ? File API & 9.2 <output>
+                document.writeln(' - Opera: Not supported');
+                return false;
+            }
+        }
+
+        function submitForm(voyager_ids) {
+            if (voyager_ids == []) {
+                $("#msgLabel").text("No valid data was submitted.")
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/eventkit/voyager",
+                    data: {
+                        voyager_ids: voyager_ids,
+                        voyager_base_url: $("#id_voyager_base_url").val(),
+                        csrfmiddlewaretoken: getCookie('csrftoken')
+                    },
+                    statusCode: {202: displaySuccess},
+                    success: console.log('success'),
+                    error: displayFailure
+                });
+            }
+        }
+
+        function displaySuccess() {
+            $("#msgLabel").text("VoyagerSearch services successfully submitted.");
+            setTimeout(function () {
+                $("#msgLabel").text("");
+            }, 4000);
+            return false;
+        }
+
+        function displayFailure() {
+            $("#msgLabel").text("VoyagerSearch services submission failed.");
+            setTimeout(function () {
+                $("#msgLabel").text("");
+            }, 4000);
+            return false;
+        }
+
+        function readTable(file) {
+            var reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = function (event) {
+                var csv = event.target.result;
+                var data = $.csv.toArrays(csv);
+                var html = '';
+                var voyager_ids = []
+                for (var row in data) {
+                    if (row == 0) {
+                        continue;
+                    }
+                    if (data[row]) {
+                        voyager_ids.push(data[row][0])
+                    }
+                }
+                submitForm(voyager_ids)
+
+            };
+            reader.onerror = function () {
+                alert('Unable to read ' + file.name);
+            }
+        }
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    }
+);
+</script>
+    <h2>
+    Add VoyagerSearch Services
+    </h2>
+<br/>
+Choose a CSV file, and enter the base url for the VoyagerSearch service (e.g. http://voyagersearch.com):
+<br/>
+<br/>
+{% if form %}
+ <input id="id_file" name="file" type="file">
+<br/>
+<form action='/eventkit/voyager' method="post" enctype="multipart/form-data" id="submit-form">
+    {{ form }}
+    {% csrf_token %}
+    <input class="btn btn-primary pull-right" type="submit" value="Submit" />
+</form>
+{% endif %}
+<br/>
+<label id="msgLabel"></label>
+{% endblock %}
