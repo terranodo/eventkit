@@ -178,6 +178,12 @@ sudo mkdir /var/lib/eventkit/src/geonode/geonode/uploaded/
 sudo mkdir /cache
 sudo chown vagrant:vagrant /cache
 
+sudo cp /var/lib/eventkit/eventkit/config.toml /var/lib/eventkit/bin/
+cd /var/lib/eventkit/src/osm-extract
+sudo -u vagrant make clean all NAME=rio URL=https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
+sudo -u postgres psql rio_osm -c 'CREATE TABLE buildings_mercator AS SELECT * FROM buildings;'
+sudo -u postgres psql rio_osm -c 'ALTER TABLE buildings_mercator ALTER COLUMN wkb_geometry TYPE Geometry(MultiPolygon, 3857) USING ST_Transform(wkb_geometry, 3857);'
+
 # sudo echo '[unix_http_server]
 # file=/var/run/supervisor.sock
 
@@ -260,6 +266,7 @@ programs=gunicorn-geonode,gunicorn-mapproxy,tegola
 priority=999
 
 [program:tegola]
+directory = /var/lib/eventkit/bin
 command = /var/lib/eventkit/bin/tegola
            --bind eventkit.dev:8080
            --worker-class eventlet
