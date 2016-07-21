@@ -308,7 +308,6 @@ stderr_logfile=/var/log/eventkit/stderr.log
 stderr_logfile_maxbytes=50MB
 stderr_logfile_backups=5
 stopsignal=INT
-
 [program:gunicorn-mapproxy]
 command =  /var/lib/eventkit/bin/gunicorn mapproxy.wsgi:application
            --bind eventkit.dev:7080
@@ -439,4 +438,4 @@ sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py loaddata /var/lib/
 sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate guardian
 sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate people
 
-# python /var/lib/eventkit/scripts/osm_importer.py --name rio --url https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/eventkit/fixtures/tilesets.json
