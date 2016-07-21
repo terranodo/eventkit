@@ -181,8 +181,19 @@ sudo chown vagrant:vagrant /cache
 sudo cp /var/lib/eventkit/eventkit/config.toml /var/lib/eventkit/bin/
 cd /var/lib/eventkit/src/osm-extract
 sudo -u vagrant make clean all NAME=rio URL=https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
-sudo -u postgres psql rio_osm -c 'CREATE TABLE buildings_mercator AS SELECT * FROM buildings;'
-sudo -u postgres psql rio_osm -c 'ALTER TABLE buildings_mercator ALTER COLUMN wkb_geometry TYPE Geometry(MultiPolygon, 3857) USING ST_Transform(wkb_geometry, 3857);'
+
+POLYGON_LAYERS="buildings farms aerodromes_polygon forest grassland lakes medical_polygon military residential schools_polygon"
+LINE_LAYERS="all_roads rivers main_roads"
+
+for LAYER in $POLYGON_LAYERS ; do
+   sudo -u postgres psql rio_osm -c "CREATE TABLE ${LAYER}_3857 AS SELECT * FROM ${LAYER};"
+   sudo -u postgres psql rio_osm -c "ALTER TABLE ${LAYER}_3857 ALTER COLUMN wkb_geometry TYPE Geometry(MultiPolygon, 3857) USING ST_Transform(wkb_geometry, 3857);"
+done
+
+for LAYER in $LINE_LAYERS ; do
+   sudo -u postgres psql rio_osm -c "CREATE TABLE ${LAYER}_3857 AS SELECT * FROM ${LAYER};"
+   sudo -u postgres psql rio_osm -c "ALTER TABLE ${LAYER}_3857 ALTER COLUMN wkb_geometry TYPE Geometry(LineString, 3857) USING ST_Transform(wkb_geometry, 3857);"
+done
 
 # sudo echo '[unix_http_server]
 # file=/var/run/supervisor.sock
@@ -268,14 +279,6 @@ priority=999
 [program:tegola]
 directory = /var/lib/eventkit/bin
 command = /var/lib/eventkit/bin/tegola
-           --bind eventkit.dev:8080
-           --worker-class eventlet
-           --workers 2
-           --threads 4
-           --access-logfile /var/log/eventkit/tegola-access-log.txt
-           --error-logfile /var/log/eventkit/tegola-error-log.txt
-           --name eventkit
-           --user vagrant
 autostart=true
 autorestart=true
 stdout_logfile=/var/log/eventkit/stdout.log
@@ -432,5 +435,8 @@ sudo systemctl start httpd
 sudo systemctl enable httpd
 
 sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/eventkit/fixtures/admin_user.json
+
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate guardian
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate people
 
 # python /var/lib/eventkit/scripts/osm_importer.py --name rio --url https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
