@@ -173,8 +173,6 @@ sudo ln -s /var/lib/eventkit/eventkit /var/lib/eventkit/lib/python2.7/site-packa
 
 sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py makemigrations --noinput
 sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate --noinput
-sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate guardian
-sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate people
 sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py collectstatic --noinput
 sudo mkdir /var/lib/eventkit/src/geonode/geonode/uploaded/
 sudo mkdir /cache
@@ -437,5 +435,8 @@ sudo systemctl start httpd
 sudo systemctl enable httpd
 
 sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/eventkit/fixtures/admin_user.json
+
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate guardian
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate people
 
 # python /var/lib/eventkit/scripts/osm_importer.py --name rio --url https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
