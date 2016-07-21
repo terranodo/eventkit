@@ -4,7 +4,8 @@
 		<title>Mapbox Vector Tiles</title>
 		<link rel="stylesheet" href="http://openlayers.org/en/v3.16.0/css/ol.css" type="text/css">
 		<script src="http://openlayers.org/en/v3.16.0/build/ol.js"></script>
-		<script src="js/tegola_style.js"></script>
+		{% load staticfiles %}
+			<script src="{% static "js/tegola_style.js" %}"></script>
 		<style>
 			.map {
 				width: 100%;
@@ -27,7 +28,7 @@
 								format: new ol.format.MVT(),
 								tileGrid: ol.tilegrid.createXYZ({maxZoom: 22}),
 								tilePixelRatio: 16,
-								url: 'http://eventkit.dev/tegola/maps/rio_buildings/{z}/{x}/{y}.vector.pbf'
+								url: 'http://eventkit.dev/tegola/maps/rio_osm/{z}/{x}/{y}.vector.pbf'
 							}),
 							style: createMapboxStreetsV6Style()
 						})
@@ -38,8 +39,9 @@
 						zoom: 2
 					})
 				});
-				map.getView().setCenter([791781,6575605])
-				map.getView().setZoom(11)
+				var center = ol.proj.transform([-43.1729, -22.6568], 'EPSG:4326', 'EPSG:3857')
+                map.getView().setCenter(center)
+				map.getView().setZoom(10)
 		</script>
 	</body>
 </html>

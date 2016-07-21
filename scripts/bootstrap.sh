@@ -173,6 +173,8 @@ sudo ln -s /var/lib/eventkit/eventkit /var/lib/eventkit/lib/python2.7/site-packa
 
 sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py makemigrations --noinput
 sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate --noinput
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate guardian
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate people
 sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py collectstatic --noinput
 sudo mkdir /var/lib/eventkit/src/geonode/geonode/uploaded/
 sudo mkdir /cache
@@ -279,14 +281,6 @@ priority=999
 [program:tegola]
 directory = /var/lib/eventkit/bin
 command = /var/lib/eventkit/bin/tegola
-           --bind eventkit.dev:8080
-           --worker-class eventlet
-           --workers 2
-           --threads 4
-           --access-logfile /var/log/eventkit/tegola-access-log.txt
-           --error-logfile /var/log/eventkit/tegola-error-log.txt
-           --name eventkit
-           --user vagrant
 autostart=true
 autorestart=true
 stdout_logfile=/var/log/eventkit/stdout.log
