@@ -66,7 +66,12 @@ def export_voyager_data(base_url, voyager_ids=None, file_path=None):
                 if not endpoint:
                     print("Could not connect to service: {}".format(title))
                 else:
-                    services.append({'title': title, 'url': endpoint, 'bbox': bbox, 'format': format})
+                    layer_name = record.get('wms_layer_name')
+                    services.append({'title': title,
+                                     'url': endpoint,
+                                     'bbox': bbox,
+                                     'format': format,
+                                     'layer_name': layer_name})
 
             elif format == 'application/x-arcgis-image-server':
                 if record.get('wms_capabilities'):

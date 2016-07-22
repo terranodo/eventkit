@@ -12,7 +12,7 @@ from django.conf import settings
 log = logging.getLogger(__name__)
 
 
-def create_conf_from_wms(wms_url, name="Eventkit", bbox=None):
+def create_conf_from_wms(wms_url, name=None, layer_name=None, bbox=None):
     """
 
     :param wms_url: A URL for an external service.
@@ -20,6 +20,7 @@ def create_conf_from_wms(wms_url, name="Eventkit", bbox=None):
     :param bbox: A bounding box as an array (e.g. [-180, -89, 180, 89])(not implemented)
     :return: None
     """
+    name = name or layer_name
     temp_file = NamedTemporaryFile()
     # wms_url = wms_url.replace('"','')
     params = ['--capabilities', wms_url, '--output', temp_file.name, '--force']
@@ -29,8 +30,7 @@ def create_conf_from_wms(wms_url, name="Eventkit", bbox=None):
         conf_dict = yaml.load(temp_file)
     except yaml.YAMLError as exc:
         log.error(exc)
-    create_tileset_from_conf_dict(conf_dict, name)
-
+    create_tileset_from_conf_dict(conf_dict, name, wms_layer_name=layer_name)
 
 def create_confs_from_voyager(base_url, voyager_ids, bbox=None):
     """
@@ -40,6 +40,7 @@ def create_confs_from_voyager(base_url, voyager_ids, bbox=None):
     :param bbox: A bounding box to narrow results (e.g. [-180, -89, 180, 89])(not implemented)
     :return: None
     """
+    import sys
     service_list = export_voyager_data(base_url, voyager_ids=voyager_ids)
     if not service_list:
         return None
@@ -47,10 +48,12 @@ def create_confs_from_voyager(base_url, voyager_ids, bbox=None):
         if 'wms' in service.get('format'):
             if not service.get('url'):
                 continue
-            create_conf_from_wms(service.get('url'), name=service.get('title'))
+            if service:
+                print("SERVICE: {}".format(service))
+            sys.stdout.flush()
+            create_conf_from_wms(service.get('url'), name=service.get('title'), layer_name=service.get('layer_name'))
 
-
-def create_tileset_from_conf_dict(conf_dict, name):
+def create_tileset_from_conf_dict(conf_dict, name, wms_layer_name=None):
     """
 
     :param conf_dict: A mapproxy configuration yaml as a dict.
@@ -58,7 +61,6 @@ def create_tileset_from_conf_dict(conf_dict, name):
     :return: None
     """
 
-    name = name
     created_by = "Eventkit Service"
     cache_type = 'file'
     directory_layout = 'tms'
@@ -70,7 +72,7 @@ def create_tileset_from_conf_dict(conf_dict, name):
     mapfile = None
     layer_zoom_stop = 6
 
-    layers = get_layers(conf_dict.get('layers'))
+    layers = get_layers(conf_dict.get('layers'), layer_name=wms_layer_name)
     for layer in layers:
         layer_name = layer.get('name')
         bbox = None
@@ -103,37 +105,54 @@ def create_tileset_from_conf_dict(conf_dict, name):
         if not bbox:
             bbox = [-180, -89, 180, 89]
         try:
-            Tileset.objects.get_or_create(name=name,
-                                          created_by=created_by,
+            Tileset.objects.get_or_create(name=layer_name or name,
                                           layer_name=layer_name,
-                                          cache_type=cache_type,
-                                          directory_layout=directory_layout,
-                                          directory=directory,
-                                          filename=filename,
-                                          table_name=table_name,
-                                          bbox_x0=bbox[0],
-                                          bbox_y0=bbox[1],
-                                          bbox_x1=bbox[2],
-                                          bbox_y1=bbox[3],
-                                          server_url=server_url,
-                                          source_type=source_type,
-                                          mapfile=mapfile,
-                                          layer_zoom_stop=layer_zoom_stop)
+                                          defaults={'created_by': created_by,
+                                                    'cache_type': cache_type,
+                                                    'directory_layout': directory_layout,
+                                                    'directory': directory,
+                                                    'filename': filename,
+                                                    'table_name': table_name,
+                                                    'bbox_x0': bbox[0],
+                                                    'bbox_y0': bbox[1],
+                                                    'bbox_x1': bbox[2],
+                                                    'bbox_y1': bbox[3],
+                                                    'server_url': server_url,
+                                                    'source_type': source_type,
+                                                    'mapfile': mapfile,
+                                                    'layer_zoom_stop': layer_zoom_stop})
         except IntegrityError:
             continue
 
-def get_layers(layers):
+
+def cache_tileset(tileset_id):
+    tileset = Tileset.objects.get(pk=tileset_id)
+    tileset.seed()
+
+
+def get_layers(layers, layer_name=None):
     """
 
     :param layers: A layer dict from the mapproxy configuration.
+    :param layer_name: Then name of the layer to be configured.
     :return: A flattened version of the layer dict (i.e. not nested).
     """
+    import sys
     layer_list = []
     for layer in layers:
+        # if layer_name is not None and layer.get('name') is not None:
+        #     print("{}  == {}?".format(layer_name.lower(), layer.get('name').lower()))
+        #     sys.stdout.flush()
         if isinstance(layer, dict) and layer.get('layers'):
-            layer_list += get_layers(layer.get('layers'))
+            layer_list += get_layers(layer.get('layers'), layer_name=layer_name)
         else:
-            layer_list += [layer]
+            if layer_name:
+                if layer_name.lower() == layer.get('name').lower():
+                    print(layer)
+                    sys.stdout.flush()
+                    layer_list += [layer]
+            elif layer_name is None:
+                layer_list += [layer]
     return layer_list
 
 
