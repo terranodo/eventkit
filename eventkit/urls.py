@@ -19,4 +19,7 @@ urlpatterns = patterns('',
     (r'^djmp/', include('djmp.urls')),
     url(r'^eventkit/register$', register_service),
     url(r'^eventkit/voyager$', import_voyager_cart),
+    url(r'^mvt_example$',
+        TemplateView.as_view(template_name='open-layers-example.html'),
+        name='mvt_example'),
 ) + urlpatterns

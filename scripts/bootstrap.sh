@@ -89,27 +89,27 @@ sudo echo "PATH=$PATH:/usr/local/bin" >> /etc/profile.d/path.sh
 sudo env "PATH=$PATH" python setup.py install
 cd ..
 
-cd /var/lib/eventkit
-sudo git clone https://github.com/mapbox/osm-bright.git
-cd osm-bright
-sudo cp /var/lib/eventkit/osm-bright/osm-bright/fonts/* /usr/local/lib/mapnik/fonts/
-sudo cp /var/lib/eventkit/osm-bright/configure.py.sample /var/lib/eventkit/osm-bright/configure.py
-sudo yum install unzip -y
-sudo grep -q 'config\["importer"\] = "osm2pgsql"' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["importer"\] = "osm2pgsql"/config\["importer"\] = "imposm"/g' /var/lib/eventkit/osm-bright/configure.py
-sudo grep -q 'config\["postgis"\]\["user"\]     = ""' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["postgis"\]\["user"\]     = ""/config\["postgis"\]\["user"\]     = "postgres"/g' /var/lib/eventkit/osm-bright/configure.py
-sudo grep -q 'config\["postgis"\]\["password"\] = ""' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["postgis"\]\["password"\] = ""/config\["postgis"\]\["password"\] = "postgres"/g' /var/lib/eventkit/osm-bright/configure.py
-sudo grep -q  'path\.expanduser("\~\/Documents\/MapBox\/project")' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/path\.expanduser("\~\/Documents\/MapBox\/project")/path\.expanduser("\/var\/lib\/eventkit\/mapproxy")/g' /var/lib/eventkit/osm-bright/configure.py
-sudo mkdir /var/lib/eventkit/osm-bright/shp
-cd /var/lib/eventkit/osm-bright/shp
-sudo wget http://data.openstreetmapdata.com/simplified-land-polygons-complete-3857.zip
-sudo unzip simplified-land-polygons-complete-3857
-sudo wget http://data.openstreetmapdata.com/land-polygons-split-3857.zip
-sudo unzip land-polygons-split-3857
+# cd /var/lib/eventkit
+# sudo git clone https://github.com/mapbox/osm-bright.git
+# cd osm-bright
+# sudo cp /var/lib/eventkit/osm-bright/osm-bright/fonts/* /usr/local/lib/mapnik/fonts/
+# sudo cp /var/lib/eventkit/osm-bright/configure.py.sample /var/lib/eventkit/osm-bright/configure.py
+# sudo yum install unzip -y
+# sudo grep -q 'config\["importer"\] = "osm2pgsql"' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["importer"\] = "osm2pgsql"/config\["importer"\] = "imposm"/g' /var/lib/eventkit/osm-bright/configure.py
+# sudo grep -q 'config\["postgis"\]\["user"\]     = ""' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["postgis"\]\["user"\]     = ""/config\["postgis"\]\["user"\]     = "postgres"/g' /var/lib/eventkit/osm-bright/configure.py
+# sudo grep -q 'config\["postgis"\]\["password"\] = ""' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/config\["postgis"\]\["password"\] = ""/config\["postgis"\]\["password"\] = "postgres"/g' /var/lib/eventkit/osm-bright/configure.py
+# sudo grep -q  'path\.expanduser("\~\/Documents\/MapBox\/project")' /var/lib/eventkit/osm-bright/configure.py && sudo sed -i 's/path\.expanduser("\~\/Documents\/MapBox\/project")/path\.expanduser("\/var\/lib\/eventkit\/mapproxy")/g' /var/lib/eventkit/osm-bright/configure.py
+# sudo mkdir /var/lib/eventkit/osm-bright/shp
+# cd /var/lib/eventkit/osm-bright/shp
+# sudo wget http://data.openstreetmapdata.com/simplified-land-polygons-complete-3857.zip
+# sudo unzip simplified-land-polygons-complete-3857
+# sudo wget http://data.openstreetmapdata.com/land-polygons-split-3857.zip
+# sudo unzip land-polygons-split-3857
 sudo mkdir -p /var/lib/eventkit/mapproxy/apps
-cd /var/lib/eventkit/mapproxy
-sudo wget http://download.omniscale.de/magnacarto/rel/dev-20160406-012a66a/magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
-sudo tar -xzvf magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
-sudo mv magnacarto-dev-20160406-012a66a-linux-amd64 magnacarto
+# cd /var/lib/eventkit/mapproxy
+# sudo wget http://download.omniscale.de/magnacarto/rel/dev-20160406-012a66a/magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
+# sudo tar -xzvf magnacarto-dev-20160406-012a66a-linux-amd64.tar.gz
+# sudo mv magnacarto-dev-20160406-012a66a-linux-amd64 magnacarto
 
 cd ~
 sudo wget https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
@@ -157,17 +157,16 @@ sudo sed -i "0,/'NAME': 'geonode'/! s/'NAME': 'geonode'/'NAME': 'geonode_data'/g
 sudo grep -q "'LOCATION' : 'http://localhost:8080/geoserver/'" /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i "s/'LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'LOCATION' : 'http:\/\/localhost\/geoserver\/'/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
 sudo grep -q "'PUBLIC_LOCATION' : 'http://localhost:8080/geoserver/'" /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i "s/'PUBLIC_LOCATION' : 'http:\/\/localhost:8080\/geoserver\/'/'PUBLIC_LOCATION' : 'http:\/\/192.168.99.120\/geoserver\/'/g" /var/lib/eventkit/src/geonode/geonode/local_settings.py
 sudo grep -q 'SITEURL = "http://localhost/"' /var/lib/eventkit/src/geonode/geonode/local_settings.py && sudo sed -i 's/SITEURL = "http:\/\/localhost\/"/SITEURL = "http:\/\/192.168.99.120\/"/g' /var/lib/eventkit/src/geonode/geonode/local_settings.py
-sudo echo "LAYER_PREVIEW_LIBRARY = 'OL3'" >> /var/lib/eventkit/eventkit/settings.py
 
 chown vagrant:vagrant -R /var/lib/eventkit
 sudo chmod -R 755 /var/lib/eventkit/src/geonode/geonode
 sudo chmod 777 /var/lib/eventkit/lib/python2.7/site-packages/account
 
 
-cd /var/lib/eventkit/src/geonode
-git add -A
-git commit -m "commit"
-git pull https://github.com/lukerees/geonode.git ol3-preview
+# cd /var/lib/eventkit/src/geonode
+# git add -A
+# git commit -m "commit"
+# git pull https://github.com/lukerees/geonode.git ol3-preview
 
 export PATH=/var/lib/eventkit/bin:$PATH
 sudo echo "PATH=/var/lib/eventkit/bin:$PATH" >> /etc/profile.d/path.sh
@@ -179,6 +178,23 @@ sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py collectstatic --no
 sudo mkdir /var/lib/eventkit/src/geonode/geonode/uploaded/
 sudo mkdir /cache
 sudo chown vagrant:vagrant /cache
+
+sudo cp /var/lib/eventkit/eventkit/config.toml /var/lib/eventkit/bin/
+cd /var/lib/eventkit/src/osm-extract
+sudo -u vagrant make clean all NAME=rio URL=https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
+
+POLYGON_LAYERS="buildings farms aerodromes_polygon forest grassland lakes medical_polygon military residential schools_polygon"
+LINE_LAYERS="all_roads rivers main_roads"
+
+for LAYER in $POLYGON_LAYERS ; do
+   sudo -u postgres psql rio_osm -c "CREATE TABLE ${LAYER}_3857 AS SELECT * FROM ${LAYER};"
+   sudo -u postgres psql rio_osm -c "ALTER TABLE ${LAYER}_3857 ALTER COLUMN wkb_geometry TYPE Geometry(MultiPolygon, 3857) USING ST_Transform(wkb_geometry, 3857);"
+done
+
+for LAYER in $LINE_LAYERS ; do
+   sudo -u postgres psql rio_osm -c "CREATE TABLE ${LAYER}_3857 AS SELECT * FROM ${LAYER};"
+   sudo -u postgres psql rio_osm -c "ALTER TABLE ${LAYER}_3857 ALTER COLUMN wkb_geometry TYPE Geometry(LineString, 3857) USING ST_Transform(wkb_geometry, 3857);"
+done
 
 # sudo echo '[unix_http_server]
 # file=/var/run/supervisor.sock
@@ -262,15 +278,8 @@ programs=gunicorn-geonode,gunicorn-mapproxy,tegola,celery-worker1
 priority=999
 
 [program:tegola]
+directory = /var/lib/eventkit/bin
 command = /var/lib/eventkit/bin/tegola
-           --bind eventkit.dev:8080
-           --worker-class eventlet
-           --workers 2
-           --threads 4
-           --access-logfile /var/log/eventkit/tegola-access-log.txt
-           --error-logfile /var/log/eventkit/tegola-error-log.txt
-           --name eventkit
-           --user vagrant
 autostart=true
 autorestart=true
 stdout_logfile=/var/log/eventkit/stdout.log
@@ -442,40 +451,9 @@ sudo systemctl enable supervisord
 sudo systemctl start httpd
 sudo systemctl enable httpd
 
-sudo echo '[
-    {
-        "pk": 1,
-        "model": "people.profile",
-        "fields": {
-            "profile": null,
-            "last_name": "",
-            "is_staff": true,
-            "user_permissions": [],
-            "date_joined": "2016-06-15T14:25:19.000",
-            "city": null,
-            "first_name": "",
-            "area": null,
-            "zipcode": null,
-            "is_superuser": true,
-            "last_login": "2016-06-15T14:25:19.000",
-            "email": "admin@geonode.org",
-            "username": "admin",
-            "fax": null,
-            "is_active": true,
-            "delivery": null,
-            "groups": [
-                1
-            ],
-            "organization": null,
-            "password": "pbkdf2_sha256$20000$qH1pQEscvOgy$ypOQA/Ogej//J0218c39CFXobmv14050/hwWHnvhgxg=",
-            "country": null,
-            "position": null,
-            "voice": null
-        }
-    }
-]' > /var/lib/eventkit/src/geonode/geonode/fixtures.json
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/eventkit/fixtures/admin_user.json
 
-
-sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py loaddata /var/lib/eventkit/src/geonode/geonode/fixtures.json
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate guardian
+sudo /var/lib/eventkit/bin/python /var/lib/eventkit/manage.py migrate people
 
 # python /var/lib/eventkit/scripts/osm_importer.py --name rio --url https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf

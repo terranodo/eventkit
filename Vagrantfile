@@ -3,9 +3,6 @@
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-
-  config.vm.box = "geerlingguy/centos7"
-  config.vm.provision :shell, path: "scripts/bootstrap.sh"
   config.vm.hostname = "eventkit.dev"
 
   ## create a private network visible only to the host machine
@@ -19,6 +16,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", "8224", "--cpus", "4"]
+  end
+  
+  config.vm.define :production do |production|
+	production.vm.box = "eventkit"
+	production.vm.box_url = "https://s3.amazonaws.com/geoserver-mirror/eventkit.box"
+  end
+  
+  config.vm.define :dev do |dev|
+	config.vm.box = "geerlingguy/centos7"
+	config.vm.provision :shell, path: "scripts/bootstrap.sh"
   end
   
 end

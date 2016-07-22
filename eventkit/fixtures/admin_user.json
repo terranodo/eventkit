@@ -1,0 +1,32 @@
+[
+    {
+        "pk": 1,
+        "model": "people.profile",
+        "fields": {
+            "profile": null,
+            "last_name": "",
+            "is_staff": true,
+            "user_permissions": [],
+            "date_joined": "2016-06-15T14:25:19.000",
+            "city": null,
+            "first_name": "",
+            "area": null,
+            "zipcode": null,
+            "is_superuser": true,
+            "last_login": "2016-06-15T14:25:19.000",
+            "email": "admin@geonode.org",
+            "username": "admin",
+            "fax": null,
+            "is_active": true,
+            "delivery": null,
+            "groups": [
+                1
+            ],
+            "organization": null,
+            "password": "pbkdf2_sha256$20000$qH1pQEscvOgy$ypOQA/Ogej//J0218c39CFXobmv14050/hwWHnvhgxg=",
+            "country": null,
+            "position": null,
+            "voice": null
+        }
+    }
+]
