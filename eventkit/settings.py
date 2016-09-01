@@ -210,6 +210,8 @@ TEMPLATE_LOADERS = os.getenv('TEMPLATE_LOADERS',_DEFAULT_TEMPLATE_LOADERS)
 _DEFAULT_TEMPLATE_DIRS = (
     os.path.join(PROJECT_ROOT, "templates"),
     os.path.join(GEONODE_ROOT, "templates"),
+    os.path.join('/usr/src/app/src/djmp/djmp/', 'templates'),
+    os.path.join('/usr/src/app/src/osgeo-importer/osgeo_importer/', 'templates'),
 )
 TEMPLATE_DIRS = os.getenv('TEMPLATE_DIRS',_DEFAULT_TEMPLATE_DIRS)
 
@@ -1064,3 +1066,5 @@ ENABLE_GUARDIAN_PERMISSIONS = getattr(settings, 'ENABLE_GUARDIAN_PERMISSIONS', F
 
 DJMP_AUTHORIZATION_CLASS =  'djmp.guardian_auth.GuardianAuthorization' if ENABLE_GUARDIAN_PERMISSIONS else getattr(
     settings, 'DJMP_AUTHORIZATION_CLASS', 'tastypie.authorization.DjangoAuthorization')
+
+OSGEO_DATASTORE = 'eventkit'
