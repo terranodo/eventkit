@@ -4,12 +4,12 @@ gdal
 uwsgi
 gunicorn
 eventlet
-rtree
+#rtree
 imposm
 decorator
 webtest
 -e git://github.com/terranodo/mapproxy.git@addGeopackageAutoconfig#egg=mapproxy
--e git://github.com/terranodo/django-mapproxy.git@master#egg=django-mapproxy
+-e git://github.com/terranodo/django-mapproxy.git@master#egg=djmp
 -e git://github.com/terranodo/osm-extract.git@master#egg=osm-extract
 -e git://github.com/ProminentEdge/django-osgeo-importer.git@master#egg=osgeo-importer
 -e git://github.com/terranodo/geonode.git@eventkit#egg=geonode
