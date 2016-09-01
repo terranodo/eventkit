@@ -1,4 +1,4 @@
-FROM python:2.7.9
+        FROM python:2.7.9
 MAINTAINER Jeff Johnson <jeff@terranodo.io>
 
 RUN mkdir -p /usr/src/app
@@ -31,9 +31,6 @@ RUN apt-get update && apt-get install -y \
                 libprotobuf-dev protobuf-compiler \
                 libtokyocabinet-dev \
     --no-install-recommends && rm -rf /var/lib/apt/lists/*
-
-#COPY wait-for-postgres.sh /usr/bin/wait-for-postgres
-#RUN chmod +x /usr/bin/wait-for-postgres
 
 # To understand the next section (the need for requirements.txt and setup.py)
 # Please read: https://packaging.python.org/requirements/
