@@ -3,6 +3,10 @@ from django.views.generic import TemplateView
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.views.generic.base import RedirectView
 from geonode.urls import *
+from osgeo_importer.urls import urlpatterns as importer_urlpatterns
+from tastypie.api import Api
+
+importer_api = Api(api_name='importer-api')
 
 urlpatterns = patterns('',
    url(r'^/?$',
@@ -20,3 +24,8 @@ urlpatterns = patterns('',
         TemplateView.as_view(template_name='open-layers-example.html'),
         name='mvt_example'),
 ) + urlpatterns
+
+urlpatterns += patterns("",
+                        url(r'', include(importer_api.urls)))
+
+urlpatterns += importer_urlpatterns
