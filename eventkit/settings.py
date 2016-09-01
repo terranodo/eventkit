@@ -46,7 +46,7 @@ WSGI_APPLICATION = "eventkit.wsgi.application"
 
 # Setting debug to true makes Django serve static media and
 # present pretty error pages.
-DEBUG = str2bool(os.getenv('DEBUG', 'False'))
+DEBUG = os.getenv('DEBUG', 'False')
 TEMPLATE_DEBUG = str2bool(os.getenv('TEMPLATE_DEBUG', 'False'))
 
 # Set to True to load non-minified versions of (static) client dependencies
