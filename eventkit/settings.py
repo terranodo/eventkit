@@ -27,6 +27,12 @@ from geonode.celery_app import app  # flake8: noqa
 import djcelery
 import dj_database_url
 
+def strtobool(v):
+  #susendberg's function
+  return v.lower() in ("yes", "true", "t", "1")
+
+from geonode import settings
+
 #
 # General Django development settings
 #
@@ -47,12 +53,12 @@ WSGI_APPLICATION = "eventkit.wsgi.application"
 # Setting debug to true makes Django serve static media and
 # present pretty error pages.
 DEBUG = os.getenv('DEBUG', 'False')
-TEMPLATE_DEBUG = str2bool(os.getenv('TEMPLATE_DEBUG', 'False'))
+TEMPLATE_DEBUG = strtobool(os.getenv('TEMPLATE_DEBUG', 'False'))
 
 # Set to True to load non-minified versions of (static) client dependencies
 # Requires to set-up Node and tools that are required for static development
 # otherwise it will raise errors for the missing non-minified dependencies
-DEBUG_STATIC = str2bool(os.getenv('DEBUG_STATIC', 'False'))
+DEBUG_STATIC = strtobool(os.getenv('DEBUG_STATIC', 'False'))
 
 # This is needed for integration tests, they require
 # geonode to be listening for GeoServer auth requests.
@@ -79,8 +85,8 @@ SITE_ID = int(os.getenv('SITE_ID', '1'))
 # Location of url mappings
 ROOT_URLCONF = 'eventkit.urls'
 
-USE_I18N = str2bool(os.getenv('USE_I18N', 'True'))
-USE_L10N = str2bool(os.getenv('USE_I18N', 'True'))
+USE_I18N = strtobool(os.getenv('USE_I18N', 'True'))
+USE_L10N = strtobool(os.getenv('USE_I18N', 'True'))
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -215,7 +221,7 @@ _DEFAULT_LOCALE_PATHS = (
 LOCALE_PATHS = os.getenv('LOCALE_PATHS',_DEFAULT_LOCALE_PATHS)
 
 # Location of url mappings
-ROOT_URLCONF = os.getenv('ROOT_URLCONF','{{ project_name }}.urls')
+ROOT_URLCONF = os.getenv('ROOT_URLCONF','eventkit.urls')
 
 # Login and logout urls override
 LOGIN_URL = os.getenv('LOGIN_URL','/account/login/')
@@ -332,7 +338,7 @@ _DEFAULT_INSTALLED_APPS = (
 ) + GEONODE_APPS
 
 
-_DEFAULT_INSTALLED_APPS += ("celery", "kombu.transport.django",)
+_DEFAULT_INSTALLED_APPS += ("djmp", "osgeo_importer", "celery", "kombu.transport.django",)
 
 INSTALLED_APPS = os.getenv('INSTALLED_APPS',_DEFAULT_INSTALLED_APPS)
 
@@ -435,8 +441,8 @@ ANONYMOUS_USER_ID = os.getenv('ANONYMOUS_USER_ID','-1')
 GUARDIAN_GET_INIT_ANONYMOUS_USER =os.getenv('GUARDIAN_GET_INIT_ANONYMOUS_USER','geonode.people.models.get_anonymous_user_instance')
 
 # Whether the uplaoded resources should be public and downloadable by default or not
-DEFAULT_ANONYMOUS_VIEW_PERMISSION = str2bool(os.getenv('DEFAULT_ANONYMOUS_VIEW_PERMISSION', 'True'))
-DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION = str2bool(os.getenv('DEFAULT_ANONYMOUS_VIEW_PERMISSION', 'True'))
+DEFAULT_ANONYMOUS_VIEW_PERMISSION = strtobool(os.getenv('DEFAULT_ANONYMOUS_VIEW_PERMISSION', 'True'))
+DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION = strtobool(os.getenv('DEFAULT_ANONYMOUS_VIEW_PERMISSION', 'True'))
 
 #
 # Settings for default search size
@@ -471,10 +477,10 @@ _DEFAULT_ACTSTREAM_SETTINGS = {
 ACTSTREAM_SETTINGS = os.getenv('ACTSTREAM_SETTINGS',_DEFAULT_ACTSTREAM_SETTINGS)
 
 # Settings for Social Apps
-REGISTRATION_OPEN =  str2bool(os.getenv('REGISTRATION_OPEN', 'False'))
-ACCOUNT_EMAIL_CONFIRMATION_EMAIL = str2bool(os.getenv('ACCOUNT_EMAIL_CONFIRMATION_EMAIL', 'False'))
-ACCOUNT_EMAIL_CONFIRMATION_REQUIRED = str2bool(os.getenv('ACCOUNT_EMAIL_CONFIRMATION_REQUIRED', 'False'))
-ACCOUNT_APPROVAL_REQUIRED = str2bool(os.getenv('ACCOUNT_APPROVAL_REQUIRED', 'False'))
+REGISTRATION_OPEN =  strtobool(os.getenv('REGISTRATION_OPEN', 'False'))
+ACCOUNT_EMAIL_CONFIRMATION_EMAIL = strtobool(os.getenv('ACCOUNT_EMAIL_CONFIRMATION_EMAIL', 'False'))
+ACCOUNT_EMAIL_CONFIRMATION_REQUIRED = strtobool(os.getenv('ACCOUNT_EMAIL_CONFIRMATION_REQUIRED', 'False'))
+ACCOUNT_APPROVAL_REQUIRED = strtobool(os.getenv('ACCOUNT_APPROVAL_REQUIRED', 'False'))
 
 # Email for users to contact admins.
 THEME_ACCOUNT_CONTACT_EMAIL = os.getenv('THEME_ACCOUNT_CONTACT_EMAIL','admin@example.com')
@@ -521,7 +527,7 @@ GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY',"ABQIAAAAkofooZxTfcCv9Wi3zzGTVxTnme5
 
 SITEURL = os.getenv('SITEURL',"http://localhost:8000/")
 
-USE_QUEUE = str2bool(os.getenv('USE_QUEUE', 'False'))
+USE_QUEUE = strtobool(os.getenv('USE_QUEUE', 'False'))
 
 DEFAULT_WORKSPACE = os.getenv('DEFAULT_WORKSPACE','geonode')
 CASCADE_WORKSPACE = os.getenv('CASCADE_WORKSPACE','geonode')
@@ -530,7 +536,7 @@ OGP_URL = os.getenv('OGP_URL',"http://geodata.tufts.edu/solr/select")
 
 # Topic Categories list should not be modified (they are ISO). In case you
 # absolutely need it set to True this variable
-MODIFY_TOPICCATEGORY = str2bool(os.getenv('MODIFY_TOPICCATEGORY', 'False'))
+MODIFY_TOPICCATEGORY = strtobool(os.getenv('MODIFY_TOPICCATEGORY', 'False'))
 
 MISSING_THUMBNAIL = os.getenv('MISSING_THUMBNAIL','geonode/img/missing_thumb.png')
 
@@ -613,10 +619,10 @@ _DEFAULT_PYSCSW = {
         #    'federatedcatalogues': 'http://catalog.data.gov/csw'
         #},
         'metadata:main': {
-            'identification_title': '{{ project_name }} Catalogue',
+            'identification_title': 'EventKit Catalogue',
             'identification_abstract': 'GeoNode is an open source platform that facilitates the creation, sharing, ' \
             'and collaborative use of geospatial data',
-            'identification_keywords': 'sdi,catalogue,discovery,metadata,GeoNode, {{ project_name }}',
+            'identification_keywords': 'sdi,catalogue,discovery,metadata,GeoNode,eventkit',
             'identification_keywords_type': 'theme',
             'identification_fees': 'None',
             'identification_accessconstraints': 'None',
@@ -711,7 +717,7 @@ _DEFAULT_MAP_BASELAYERS = [{
 
 MAP_BASELAYERS = os.getenv('MAP_BASELAYERS',_DEFAULT_MAP_BASELAYERS)
 
-SOCIAL_BUTTONS = str2bool(os.getenv('SOCIAL_BUTTONS', 'True'))
+SOCIAL_BUTTONS = strtobool(os.getenv('SOCIAL_BUTTONS', 'True'))
 
 _DEFAULT_SOCIAL_ORIGINS = [{
     "label":"Email",
@@ -743,11 +749,11 @@ CKAN_ORIGINS = [{
 # Setting TWITTER_CARD to True will enable Twitter Cards
 # https://dev.twitter.com/cards/getting-started
 # Be sure to replace @GeoNode with your organization or site's twitter handle.
-TWITTER_CARD = str2bool(os.getenv('TWITTER_CARD', 'True'))
+TWITTER_CARD = strtobool(os.getenv('TWITTER_CARD', 'True'))
 TWITTER_SITE = '@GeoNode'
 TWITTER_HASHTAGS = ['geonode']
 
-OPENGRAPH_ENABLED =  str2bool(os.getenv('OPENGRAPH_ENABLED', 'True'))
+OPENGRAPH_ENABLED =  strtobool(os.getenv('OPENGRAPH_ENABLED', 'True'))
 
 # Enable Licenses User Interface
 # Regardless of selection, license field stil exists as a field in the Resourcebase model.
@@ -771,7 +777,7 @@ SRID = os.getenv('SRID',_DEFAULT_SRID)
 SESSION_SERIALIZER = os.getenv('SESSION_SERIALIZER','django.contrib.sessions.serializers.PickleSerializer')
 
 # Require users to authenticate before using Geonode
-LOCKDOWN_GEONODE = str2bool(os.getenv('LOCKDOWN_GEONODE', 'False'))
+LOCKDOWN_GEONODE = strtobool(os.getenv('LOCKDOWN_GEONODE', 'False'))
 
 # Add additional paths (as regular expressions) that don't require
 # authentication.
@@ -788,11 +794,11 @@ PROXY_URL = '/proxy/?url=' if DEBUG else None
 # - pip install pyelasticsearch
 # Set HAYSTACK_SEARCH to True
 # Run "python manage.py rebuild_index"
-HAYSTACK_SEARCH = str2bool(os.getenv('HAYSTACK_SEARCH', 'False'))
+HAYSTACK_SEARCH = strtobool(os.getenv('HAYSTACK_SEARCH', 'False'))
 # Avoid permissions prefiltering
-SKIP_PERMS_FILTER = str2bool(os.getenv('SKIP_PERMS_FILTER', 'False'))
+SKIP_PERMS_FILTER = strtobool(os.getenv('SKIP_PERMS_FILTER', 'False'))
 # Update facet counts from Haystack
-HAYSTACK_FACET_COUNTS = str2bool(os.getenv('HAYSTACK_FACET_COUNTS', 'False'))
+HAYSTACK_FACET_COUNTS = strtobool(os.getenv('HAYSTACK_FACET_COUNTS', 'False'))
 # HAYSTACK_CONNECTIONS = {
 #    'default': {
 #        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
@@ -828,7 +834,7 @@ DOWNLOAD_FORMATS_RASTER = [
 ]
 
 
-ACCOUNT_NOTIFY_ON_PASSWORD_CHANGE = str2bool(os.getenv('ACCOUNT_NOTIFY_ON_PASSWORD_CHANGE', 'False'))
+ACCOUNT_NOTIFY_ON_PASSWORD_CHANGE = strtobool(os.getenv('ACCOUNT_NOTIFY_ON_PASSWORD_CHANGE', 'False'))
 
 TASTYPIE_DEFAULT_FORMATS = ['json']
 
@@ -843,7 +849,7 @@ CLIENT_RESULTS_LIMIT = int (os.getenv('CLIENT_RESULTS_LIMIT','100'))
 
 # Number of items returned by the apis 0 equals no limit
 API_LIMIT_PER_PAGE = int(os.getenv('API_LIMIT_PER_PAGE','0'))
-API_INCLUDE_REGIONS_COUNT = str2bool(os.getenv('API_INCLUDE_REGIONS_COUNT', 'False'))
+API_INCLUDE_REGIONS_COUNT = strtobool(os.getenv('API_INCLUDE_REGIONS_COUNT', 'False'))
 
 _DEFAULT_LEAFLET_CONFIG = {
     'TILES': [
@@ -932,7 +938,7 @@ SEARCH_FILTERS = {
 # Queue non-blocking notifications.
 NOTIFICATION_QUEUE_ALL = False
 
-BROKER_URL = os.getenv(BROKER_URL, "django://")
+BROKER_URL = os.getenv('BROKER_URL', "django://")
 CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_IGNORE_RESULT = True
@@ -1037,12 +1043,12 @@ if 'geonode.geoserver' in INSTALLED_APPS:
     }
     ABSOLUTE_URL_OVERRIDES = os.getenv('ABSOLUTE_URL_OVERRIDES',_DEFAULT_ABSOLUTE_URL_OVERRIDES)
     AUTH_PROFILE_MODULE = os.getenv('AUTH_PROFILE_MODULE','maps.Contact')
-    REGISTRATION_OPEN =  str2bool(os.getenv('REGISTRATION_OPEN', 'True'))
+    REGISTRATION_OPEN =  strtobool(os.getenv('REGISTRATION_OPEN', 'True'))
 
     ACCOUNT_ACTIVATION_DAYS = int(os.getenv('ACCOUNT_ACTIVATION_DAYS','7'))
 
     # TODO: Allow overriding with an env var
-    DB_DATASTORE = str2bool(os.getenv('DB_DATASTORE', 'True'))
+    DB_DATASTORE = strtobool(os.getenv('DB_DATASTORE', 'True'))
 
     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', ['localhost', ])
 
@@ -1050,3 +1056,13 @@ if 'geonode.geoserver' in INSTALLED_APPS:
 LAYER_PREVIEW_LIBRARY="OL3"
 
 USE_DJMP_FOR_ALL_LAYERS = False
+
+#TILESET_CACHE_DIRECTORY = getattr(settings, 'TILESET_CACHE_DIRECTORY', os.path.join(BASE_DIR, 'cache/layers'))
+#TILESET_CACHE_URL = getattr(settings, 'TILESET_CACHE_URL', 'cache/layers')
+
+TASTYPIE_DEFAULT_FORMATS = ['json']
+
+ENABLE_GUARDIAN_PERMISSIONS = getattr(settings, 'ENABLE_GUARDIAN_PERMISSIONS', False)
+
+DJMP_AUTHORIZATION_CLASS =  'djmp.guardian_auth.GuardianAuthorization' if ENABLE_GUARDIAN_PERMISSIONS else getattr(
+    settings, 'DJMP_AUTHORIZATION_CLASS', 'tastypie.authorization.DjangoAuthorization')

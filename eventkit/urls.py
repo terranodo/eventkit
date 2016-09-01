@@ -15,6 +15,7 @@ urlpatterns = patterns('',
             permanent=False),
         name="favicon"
     ),
+    (r'^djmp/', include('djmp.urls')),
     url(r'^mvt_example$',
         TemplateView.as_view(template_name='open-layers-example.html'),
         name='mvt_example'),
