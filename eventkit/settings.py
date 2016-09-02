@@ -67,9 +67,13 @@ os.environ['DJANGO_LIVE_TEST_SERVER_ADDRESS'] = 'localhost:8000'
 SECRET_KEY = os.getenv('SECRET_KEY', "{{ secret_key }}")
 
 DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///development.db')
+DATASTORE_DATABASE_URL = os.getenv('DATASTORE_DATABASE_URL', 'sqlite:///development.db')
+
 DATABASES = {'default':
                       dj_database_url.parse(DATABASE_URL, conn_max_age=600),
-                                  }
+             'datastore':
+                      dj_database_url.parse(DATASTORE_DATABASE_URL, conn_max_age=600),
+            }
 
 MANAGERS = ADMINS = os.getenv('ADMINS', [])
 
@@ -1067,4 +1071,4 @@ ENABLE_GUARDIAN_PERMISSIONS = getattr(settings, 'ENABLE_GUARDIAN_PERMISSIONS', F
 DJMP_AUTHORIZATION_CLASS =  'djmp.guardian_auth.GuardianAuthorization' if ENABLE_GUARDIAN_PERMISSIONS else getattr(
     settings, 'DJMP_AUTHORIZATION_CLASS', 'tastypie.authorization.DjangoAuthorization')
 
-OSGEO_DATASTORE = 'eventkit'
+OSGEO_DATASTORE = 'datastore'

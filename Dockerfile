@@ -1,4 +1,4 @@
-        FROM python:2.7.9
+FROM python:2.7.9
 MAINTAINER Jeff Johnson <jeff@terranodo.io>
 
 RUN mkdir -p /usr/src/app
