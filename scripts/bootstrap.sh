@@ -28,12 +28,13 @@ sudo ln -s /var/lib/osmosis/bin/osmosis /usr/bin/osmosis
 sudo ln -s /var/lib/osmosis/bin/osmosis-extract-apidb-0.6 /usr/bin/osmosis-extract-apidb-0.6
 sudo ln -s /var/lib/osmosis/bin/osmosis-extract-mysql-0.6 /usr/bin/osmosis-extract-mysql-0.6
 
-sudo yum install scons -y
+# sudo yum install scons -y
 sudo yum install zip -y
-sudo yum install vim -y
+sudo yum install vim screen htop -y
 sudo yum install git -y
 sudo yum install java -y
-sudo yum install boost-devel harfbuzz-devel libicu-devel freetype-devel sqlite-devel python-devel libjpeg-devel libpng-devel -y
+# sudo yum install boost-devel harfbuzz-devel -y
+sudo yum install libicu-devel freetype-devel sqlite-devel python-devel libjpeg-devel libpng-devel -y
 sudo yum install gcc gcc-c++ -y
 sudo yum install mlocate -y
 wget http://download.osgeo.org/proj/proj-4.9.2.tar.gz
@@ -48,8 +49,8 @@ sudo yum install python-pip -y
 sudo pip install --upgrade pip
 sudo pip install virtualenv
 
-sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialindex bzip2-devel -y
-sudo yum install python-imaging python-virtualenv python-psycopg2 libxml2-devel libxml2-python libxslt-devel libxslt-python -y 
+# sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialindex bzip2-devel -y
+sudo yum install python-imaging python-virtualenv python-psycopg2 libxml2-devel libxml2-python libxslt-devel libxslt-python gdal-python -y
 sudo yum install httpd -y
 sudo yum install mod_ssl mod_proxy_html mod_wsgi -y
 sudo yum install supervisor -y
@@ -69,24 +70,24 @@ sudo -u postgres psql -c 'CREATE ROLE vagrant WITH CREATEDB SUPERUSER LOGIN;'
 sudo -u postgres createdb -O vagrant vagrant
 
 cd -
-sudo git clone https://github.com/mapnik/mapnik.git
-cd mapnik
-sudo git checkout v3.0.10
-sudo git submodule update --init
-sudo python scons/scons.py configure PG_CONFIG=/usr/pgsql-9.5/bin/pg_config
-sudo make
-sudo make install 
-cd ..
+# sudo git clone https://github.com/mapnik/mapnik.git
+# cd mapnik
+# sudo git checkout v3.0.10
+# sudo git submodule update --init
+# sudo python scons/scons.py configure PG_CONFIG=/usr/pgsql-9.5/bin/pg_config
+# sudo make
+# sudo make install
+# cd ..
 
 
-sudo git clone https://github.com/mapnik/python-mapnik
-cd python-mapnik
-sudo su -c "echo '/usr/local/lib' >> /etc/ld.so.conf.d/eventkit.conf"
-sudo ldconfig
-export PATH=$PATH:/usr/local/bin
-sudo echo "PATH=$PATH:/usr/local/bin" >> /etc/profile.d/path.sh
-sudo env "PATH=$PATH" python setup.py install
-cd ..
+# sudo git clone https://github.com/mapnik/python-mapnik
+# cd python-mapnik
+# sudo su -c "echo '/usr/local/lib' >> /etc/ld.so.conf.d/eventkit.conf"
+# sudo ldconfig
+# export PATH=$PATH:/usr/local/bin
+# sudo echo "PATH=$PATH:/usr/local/bin" >> /etc/profile.d/path.sh
+# sudo env "PATH=$PATH" python setup.py install
+# cd ..
 
 # cd /var/lib/eventkit
 # sudo git clone https://github.com/mapbox/osm-bright.git
@@ -111,21 +112,34 @@ sudo mkdir -p /var/lib/eventkit/mapproxy/apps
 # sudo mv magnacarto-dev-20160406-012a66a-linux-amd64 magnacarto
 
 cd ~
-sudo wget https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
-sudo tar -C /usr/lib -xzf go1.6.2.linux-amd64.tar.gz
-export GOROOT=/usr/lib/go
-sudo echo "GOROOT=/usr/lib/go" >> /etc/profile.d/path.sh
-export GOPATH=/var/lib/eventkit
-sudo echo "GOPATH=/var/lib/eventkit" >> /etc/profile.d/path.sh
-export PATH=$PATH:/usr/lib/go/bin
-sudo echo "PATH=$PATH:/usr/lib/go/bin" >> /etc/profile.d/path.sh
-cd /var/lib/eventkit
+sudo yum install golang -y
+# sudo wget https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
+# sudo tar -C /usr/lib -xzf go1.6.2.linux-amd64.tar.gz
+# export GOROOT=/usr/lib/go
+# sudo echo "GOROOT=/usr/lib/go" >> /etc/profile.d/path.sh
+# export GOPATH=/var/lib/eventkit
+# sudo echo "GOPATH=/var/lib/eventkit" >> /etc/profile.d/path.sh
+# export PATH=$PATH:/usr/lib/go/bin
+# sudo echo "PATH=$PATH:/usr/lib/go/bin" >> /etc/profile.d/path.sh
+# cd /var/lib/eventkit
 
-env GOROOT=$GOROOT GOPATH=$GOPATH go get -d github.com/omniscale/go-mapnik
-env GOROOT=$GOROOT GOPATH=$GOPATH go generate github.com/omniscale/go-mapnik
-env GOROOT=$GOROOT GOPATH=$GOPATH go install github.com/omniscale/go-mapnik
-env GOROOT=$GOROOT GOPATH=$GOPATH go get -d github.com/terranodo/tegola
-env GOROOT=$GOROOT GOPATH=$GOPATH go install github.com/terranodo/tegola/cmd/tegola/
+# env GOROOT=$GOROOT GOPATH=$GOPATH go get -d github.com/omniscale/go-mapnik
+# env GOROOT=$GOROOT GOPATH=$GOPATH go generate github.com/omniscale/go-mapnik
+# env GOROOT=$GOROOT GOPATH=$GOPATH go install github.com/omniscale/go-mapnik
+# env GOROOT=$GOROOT GOPATH=$GOPATH go get -d github.com/terranodo/tegola
+# env GOROOT=$GOROOT GOPATH=$GOPATH go install github.com/terranodo/tegola/cmd/tegola/
+
+cd /usr/local/bin
+wget -O tegola \
+   "https://github.com/terranodo/tegola/releases/download/v0.2.0/tegola_linux_amd64"
+chmod 755 tegola
+wget "https://github.com/terranodo/geonode-live/raw/master/conf/tegola/config.toml"
+mkdir -p /var/www/html/demo/tegola/js
+cd /var/www/html/demo/tegola/
+wget -O index.html "https://github.com/terranodo/geonode-live/raw/master/conf/tegola/open-layers-example.html"
+cd /var/www/html/demo/tegola/js
+wget "https://github.com/terranodo/geonode-live/raw/master/conf/tegola/style.js"
+
 cd -
 sudo grep -q '   peer' /var/lib/pgsql/9.5/data/pg_hba.conf && sudo sed -i "s/   peer/   trust/g" /var/lib/pgsql/9.5/data/pg_hba.conf
 sudo grep -q '   ident' /var/lib/pgsql/9.5/data/pg_hba.conf && sudo sed -i "s/   ident/   trust/g" /var/lib/pgsql/9.5/data/pg_hba.conf
