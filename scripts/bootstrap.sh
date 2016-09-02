@@ -291,8 +291,8 @@ programs=gunicorn-geonode,gunicorn-mapproxy,tegola
 priority=999
 
 [program:tegola]
-directory = /var/lib/eventkit/bin
-command = /var/lib/eventkit/bin/tegola
+directory = /usr/local/bin
+command = /usr/local/bin/tegola
 autostart=true
 autorestart=true
 stdout_logfile=/var/log/eventkit/stdout.log
