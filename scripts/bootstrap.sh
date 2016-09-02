@@ -133,12 +133,6 @@ cd /usr/local/bin
 wget -O tegola \
    "https://github.com/terranodo/tegola/releases/download/v0.2.0/tegola_linux_amd64"
 chmod 755 tegola
-wget "https://github.com/terranodo/geonode-live/raw/master/conf/tegola/config.toml"
-mkdir -p /var/www/html/demo/tegola/js
-cd /var/www/html/demo/tegola/
-wget -O index.html "https://github.com/terranodo/geonode-live/raw/master/conf/tegola/open-layers-example.html"
-cd /var/www/html/demo/tegola/js
-wget "https://github.com/terranodo/geonode-live/raw/master/conf/tegola/style.js"
 
 cd -
 sudo grep -q '   peer' /var/lib/pgsql/9.5/data/pg_hba.conf && sudo sed -i "s/   peer/   trust/g" /var/lib/pgsql/9.5/data/pg_hba.conf
@@ -192,7 +186,7 @@ sudo mkdir /var/lib/eventkit/src/geonode/geonode/uploaded/
 sudo mkdir /cache
 sudo chown vagrant:vagrant /cache
 
-sudo cp /var/lib/eventkit/eventkit/config.toml /var/lib/eventkit/bin/
+sudo cp /var/lib/eventkit/eventkit/config.toml /usr/local/bin
 cd /var/lib/eventkit/src/osm-extract
 sudo -u vagrant make clean all NAME=rio URL=https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
 
