@@ -33,7 +33,7 @@ sudo yum install zip -y
 sudo yum install vim screen htop -y
 sudo yum install git -y
 sudo yum install java -y
-# sudo yum install boost-devel harfbuzz-devel -y
+sudo yum install boost-devel harfbuzz-devel -y
 sudo yum install libicu-devel freetype-devel sqlite-devel python-devel libjpeg-devel libpng-devel -y
 sudo yum install gcc gcc-c++ -y
 sudo yum install mlocate -y
@@ -49,7 +49,7 @@ sudo yum install python-pip -y
 sudo pip install --upgrade pip
 sudo pip install virtualenv
 
-# sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialindex bzip2-devel -y
+sudo yum install tokyocabinet-devel protobuf-devel protobuf-compiler spatialindex bzip2-devel -y
 sudo yum install python-imaging python-virtualenv python-psycopg2 libxml2-devel libxml2-python libxslt-devel libxslt-python gdal-python -y
 sudo yum install httpd -y
 sudo yum install mod_ssl mod_proxy_html mod_wsgi -y
