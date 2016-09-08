@@ -187,21 +187,21 @@ sudo mkdir /cache
 sudo chown vagrant:vagrant /cache
 
 sudo cp /var/lib/eventkit/eventkit/config.toml /usr/local/bin
-cd /var/lib/eventkit/src/osm-extract
-sudo -u vagrant make clean all NAME=rio URL=https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
+#cd /var/lib/eventkit/src/osm-extract
+#sudo -u vagrant make clean all NAME=rio URL=https://s3.amazonaws.com/metro-extracts.mapzen.com/rio-de-janeiro_brazil.osm.pbf
 
-POLYGON_LAYERS="buildings farms aerodromes_polygon forest grassland lakes medical_polygon military residential schools_polygon"
-LINE_LAYERS="all_roads rivers main_roads"
+#POLYGON_LAYERS="buildings farms aerodromes_polygon forest grassland lakes medical_polygon military residential schools_polygon"
+#LINE_LAYERS="all_roads rivers main_roads"
 
-for LAYER in $POLYGON_LAYERS ; do
-   sudo -u postgres psql rio_osm -c "CREATE TABLE ${LAYER}_3857 AS SELECT * FROM ${LAYER};"
-   sudo -u postgres psql rio_osm -c "ALTER TABLE ${LAYER}_3857 ALTER COLUMN wkb_geometry TYPE Geometry(MultiPolygon, 3857) USING ST_Transform(wkb_geometry, 3857);"
-done
+#for LAYER in $POLYGON_LAYERS ; do
+#   sudo -u postgres psql rio_osm -c "CREATE TABLE ${LAYER}_3857 AS SELECT * FROM ${LAYER};"
+#   sudo -u postgres psql rio_osm -c "ALTER TABLE ${LAYER}_3857 ALTER COLUMN wkb_geometry TYPE Geometry(MultiPolygon, 3857) USING ST_Transform(wkb_geometry, 3857);"
+#done
 
-for LAYER in $LINE_LAYERS ; do
-   sudo -u postgres psql rio_osm -c "CREATE TABLE ${LAYER}_3857 AS SELECT * FROM ${LAYER};"
-   sudo -u postgres psql rio_osm -c "ALTER TABLE ${LAYER}_3857 ALTER COLUMN wkb_geometry TYPE Geometry(LineString, 3857) USING ST_Transform(wkb_geometry, 3857);"
-done
+#for LAYER in $LINE_LAYERS ; do
+#   sudo -u postgres psql rio_osm -c "CREATE TABLE ${LAYER}_3857 AS SELECT * FROM ${LAYER};"
+#   sudo -u postgres psql rio_osm -c "ALTER TABLE ${LAYER}_3857 ALTER COLUMN wkb_geometry TYPE Geometry(LineString, 3857) USING ST_Transform(wkb_geometry, 3857);"
+#done
 
 # sudo echo '[unix_http_server]
 # file=/var/run/supervisor.sock
