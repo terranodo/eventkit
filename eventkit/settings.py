@@ -70,7 +70,7 @@ LOCALE_PATHS = (
     os.path.join(LOCAL_ROOT, 'locale'),
     ) + LOCALE_PATHS
 
-INSTALLED_APPS += ("osgeo_importer", "osm_extract", "celery", "kombu.transport.django",)
+INSTALLED_APPS += ("osgeo_importer", "celery", "kombu.transport.django",)
 
 BROKER_URL = 'django://'
 #CELERY_ACCEPT_CONTENT = ['json']
