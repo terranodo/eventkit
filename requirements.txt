@@ -8,8 +8,8 @@ rtree
 imposm
 decorator
 webtest
-git+git://github.com/terranodo/geonode.git@eventkit#egg=geonode
-git+git://github.com/terranodo/mapproxy.git@addGeopackageAutoconfig#egg=mapproxy
-git+git://github.com/terranodo/django-mapproxy.git@master#egg=djmp
-git+git://github.com/terranodo/django-osgeo-importer.git@eventkit#egg=osgeo-importer
+-e git+git://github.com/terranodo/geonode.git@eventkit#egg=geonode
+-e git+git://github.com/terranodo/mapproxy.git@addGeopackageAutoconfig#egg=mapproxy
+-e git+git://github.com/terranodo/django-mapproxy.git@master#egg=djmp
+-e git+git://github.com/terranodo/django-osgeo-importer.git@eventkit#egg=osgeo-importer
 numpy==1.11.1
