@@ -52,18 +52,18 @@ STATICFILES_DIRS.append(
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'geonode',
-        'USER' : 'geonode',
-        'PASSWORD' : 'geonode',
+        'NAME': 'eventkit',
+        'USER' : 'eventkit',
+        'PASSWORD' : 'eventkit',
         'HOST' : 'localhost',
         'PORT' : '5432',
     },
     # vector datastore for uploads
      'datastore' : {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'geonode_data',
-        'USER' : 'geonode',
-        'PASSWORD' : 'geonode',
+        'NAME': 'eventkit_datastore',
+        'USER' : 'eventkit',
+        'PASSWORD' : 'eventkit',
         'HOST' : 'localhost',
         'PORT' : '5432',
      }
@@ -73,7 +73,6 @@ OSGEO_DATASTORE = 'datastore'
 OSGEO_IMPORTER_GEONODE_ENABLED = True
 LOGGING['loggers']['osgeo_importer'] = {"handlers": ["console"], "level": "DEBUG"}
 DATABASE_ROUTERS = ['osgeo_importer_prj.dbrouters.DefaultOnlyMigrations']
-
 
 # Note that Django automatically includes the "templates" dir in all the
 # INSTALLED_APPS, se there is no need to add maps/templates or admin/templates
@@ -96,8 +95,13 @@ BROKER_URL = 'django://'
 #CELERY_TASK_SERIALIZER = 'json'
 #CELERY_RESULT_SERIALIZER = 'json'
 #CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
-CELERY_ALWAYS_EAGER = False 
+CELERY_ALWAYS_EAGER = True 
 
 LAYER_PREVIEW_LIBRARY="OL3"
 
 USE_DJMP_FOR_ALL_LAYERS = False
+
+IMPORT_HANDLERS = ['osgeo_importer.handlers.geonode.GeoNodePublishHandler',
+                           'osgeo_importer.handlers.geonode.GeoNodeMetadataHandler']
+
+
