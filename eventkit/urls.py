@@ -25,7 +25,4 @@ urlpatterns = patterns('',
         name='mvt_example'),
 ) + urlpatterns
 
-urlpatterns += patterns("",
-                        url(r'', include(importer_api.urls)))
-
 urlpatterns += importer_urlpatterns

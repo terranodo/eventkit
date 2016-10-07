@@ -9,10 +9,8 @@ eventlet
 #imposm
 decorator
 webtest
-#geonode==2.5.2
 git+git://github.com/terranodo/geonode.git@eventkit#egg=geonode
 git+git://github.com/terranodo/mapproxy.git@addGeopackageAutoconfig#egg=mapproxy
 git+git://github.com/terranodo/django-mapproxy.git@master#egg=djmp
-git+git://github.com/terranodo/django-osgeo-importer.git@eventkit#egg=osgeo-importer
-#git+git://github.com/terranodo/geonode.git@eventkit#egg=geonode
+git+git://github.com/terranodo/django-osgeo-importer.git@manifest-test#egg=osgeo-importer
 numpy==1.11.1
