@@ -55,16 +55,16 @@ DATABASES = {
         'NAME': 'eventkit',
         'USER' : 'eventkit',
         'PASSWORD' : 'eventkit',
-        'HOST' : 'localhost',
+        'HOST' : 'postgres',
         'PORT' : '5432',
     },
     # vector datastore for uploads
      'datastore' : {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'eventkit_datastore',
+        'NAME': 'eventkit',
         'USER' : 'eventkit',
         'PASSWORD' : 'eventkit',
-        'HOST' : 'localhost',
+        'HOST' : 'postgres',
         'PORT' : '5432',
      }
 }
@@ -90,7 +90,15 @@ LOCALE_PATHS = (
 
 INSTALLED_APPS += ("osgeo_importer", "celery", "kombu.transport.django",)
 
-BROKER_URL = 'django://'
+if os.environ.get('VCAP_SERVICES'):
+    services = json.loads(os.environ.get('VCAP_SERVICES'))
+    try:
+        BROKER_URL = services['cloudamqp'][0]['credentials']['uri']
+    except KeyError:
+        BROKER_URL = os.environ.get('BROKER_URL', 'amqp://guest:guest@rabbitmq:5672//')
+else:
+    BROKER_URL = os.environ.get('BROKER_URL', 'amqp://guest:guest@rabbitmq:5672//')
+
 #CELERY_ACCEPT_CONTENT = ['json']
 #CELERY_TASK_SERIALIZER = 'json'
 #CELERY_RESULT_SERIALIZER = 'json'

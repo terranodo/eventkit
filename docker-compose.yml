@@ -2,16 +2,18 @@ version: '2'
 services:
 
   postgres:
-    image: postgres
     environment:
       - DB_NAME=eventkit
       - DB_DATA_NAME=eventkit_data
       - DB_PASS=eventkit
       - DB_USER=eventkit
       - POSTGRES_USER=postgres
-#    build:
-#      context: .
-#      dockerfile: Dockerfile_postgres
+    build:
+      context: .
+      dockerfile: Dockerfile_postgres
+    ports:
+     - "5432:5432"
+
   elasticsearch:
    image: elasticsearch
 
@@ -21,15 +23,17 @@ services:
   django:
     build: .
     links:
-      - postgres
       - elasticsearch
       - rabbitmq
+    depends_on:
+      - postgres 
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
-      - DATASTORE_DATABASE_URL=postgres://postgres:postgres@postgres:5432/eventkit_data
+      - DATABASE_URL=postgres://eventkit:eventkit@postgres:5432/eventkit
+      - DATASTORE_DATABASE_URL=postgres://eventkit:eventkit@postgres:5432/eventkit_datastore
       - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
       - DJANGO_SETTINGS_MODULE=eventkit.settings
       - ALLOWED_HOSTS=['django',]
+    entrypoint: scripts/wait_for_postgres.sh postgres python manage.py runserver 0.0.0.0:8000 
     ports:
       - "8000:8000"
 
@@ -37,12 +41,12 @@ services:
     build: .
     links:
       - rabbitmq
-      - postgres
       - elasticsearch
-    command: celery worker -A -geonode.celeryapp:app -l DEBUG 
+    depends_on:
+      - postgres 
+    command: celery worker -l DEBUG 
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
       - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
       - DJANGO_SETTINGS_MODULE=geonode.settings
-      - ALLOWED_HOSTS=['django',]
       - C_FORCE_ROOT=1
