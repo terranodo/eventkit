@@ -11,5 +11,5 @@ webtest
 git+git://github.com/terranodo/geonode.git@eventkit#egg=geonode
 git+git://github.com/terranodo/mapproxy.git@addGeopackageAutoconfig#egg=mapproxy
 git+git://github.com/terranodo/django-mapproxy.git@master#egg=djmp
-git+git://github.com/boundlessgeo/django-osgeo-importer.git@master#egg=osgeo-importer
+git+git://github.com/terranodo/django-osgeo-importer.git@upload_file_length#egg=osgeo-importer
 numpy==1.11.1
